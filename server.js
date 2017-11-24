@@ -38,9 +38,10 @@ io.on('connection',function(socket){
         socket.on('disconnect',function(){
             io.emit('remove',socket.player.id);
         });
+    });
 
-        setInterval(createWeapon,4000);
-
+    socket.on('supprArme',function(data){
+      io.emit('supprArme',data.id);
     });
 
     socket.on('test',function(){
@@ -48,13 +49,16 @@ io.on('connection',function(socket){
     });
 });
 
+setInterval(createWeapon,4000);
+
+
 function createWeapon(){
   var arme={id:server.lastArmeID++,
     spriteName:"sword",
     sprite:undefined,
     owner:undefined
   };
-  io.emit('spawnArme',randomInt(0,6000),randomInt(0,800),arme);
+  io.emit('spawnArme',randomInt(350,800),randomInt(850,851),arme);
 }
 
 

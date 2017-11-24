@@ -3,7 +3,7 @@ var scoreText, sword, isPickedUp = false;
 var playerMap = {};
 var weapons= {};
 var hitTraversePlatform;
-var weapon;
+var activeWeapon;
 
 var playState = {
   create: function(){
@@ -210,17 +210,21 @@ var playState = {
     			sword.body.moveTo(2000, 300, Phaser.ANGLE_RIGHT)
     		}
     	}*/
+
       for(var id in weapons){
         var weap=weapons[id];
         if(weap.owner===player2){
             weap.sprite.body.x=player2.body.x;
             weap.sprite.body.y=player2.body.y;
-        }else{
-          function cb(){
+        }else if(weap.owner===undefined){
+          function cb1(){
             pickUpItem(player2,weap);
           }
-          game.physics.arcade.collide(weap.sprite, platforms, collisionItemPlatform(weap), null, this);
-          game.physics.arcade.collide(player2, weap.sprite,cb, null, this);
+          function cb2(){
+            collisionItemPlatform(weap)
+          }
+          game.physics.arcade.collide(weap.sprite, platforms, cb2, null, this);
+          game.physics.arcade.collide(player2, weap.sprite,cb1, null, this);
         }
       }
   }
@@ -292,6 +296,8 @@ var playState = {
   },
 
   addWeapon:function(x,y,arme){
+    var weapon;
+
     var armetmp=game.add.sprite(x,y,arme.spriteName);
     arme.sprite=armetmp;
 
@@ -301,7 +307,10 @@ var playState = {
 
   	game.physics.arcade.enable(weapon.sprite);
   	weapon.sprite.body.gravity.y=2700;
+    weapon.sprite.checkWorldBounds = true;
+    weapon.sprite.events.onOutOfBounds.add(killWeapon,weapon);
     weapons[arme.id]=weapon;
+    console.log(weapons);
   },
 
 
@@ -340,15 +349,31 @@ var playState = {
   removePlayer : function(id){
       playerMap[id].destroy();
       delete playerMap[id];
+  },
+
+  supprArme : function(id){
+
+    for(var idweap in weapons){
+      if(weapons[idweap].id === id){
+        weapons[idweap].sprite.kill();
+        delete weapons[idweap];
+        if(activeWeapon.id===id)
+          activeWeapon=undefined;
+        break;
+      }
+    }
   }
 };
 
 
-function pickUpItem(player, item){
-
+function pickUpItem(player2, item){
 	if(item.owner===undefined){
-    console.log(item);
-    item.owner=player;
+    item.owner=player2;
+    if(player2===player)
+      if(activeWeapon!==undefined){
+        Client.supprimerArme(activeWeapon);
+      }
+      activeWeapon=item;
   }
 }
 
@@ -362,8 +387,14 @@ function getCoordinates (x,y){
 }
 function killPlayer(){
 	player.kill();
-	//scoreText.text = "You died, loser";
+}
+
+function killWeapon(weapon){
+  if(weapon.sprite!==undefined)
+    weapon.sprite.kill();
 }
 function resetPlayer(){
 	player.reset(32,500);
+  if(activeWeapon!==undefined)
+    Client.supprimerArme(activeWeapon);
 }
