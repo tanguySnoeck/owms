@@ -210,11 +210,20 @@ var playState = {
     			sword.body.moveTo(2000, 300, Phaser.ANGLE_RIGHT)
     		}
     	}*/
-  	}
-    for(var weap in weapons){
-      game.physics.arcade.collide(weapons[weap], platforms, collisionItemPlatform(weap), null, this);
-    }
-
+      for(var id in weapons){
+        var weap=weapons[id];
+        if(weap.owner===player2){
+            weap.sprite.body.x=player2.body.x;
+            weap.sprite.body.y=player2.body.y;
+        }else{
+          function cb(){
+            pickUpItem(player2,weap);
+          }
+          game.physics.arcade.collide(weap.sprite, platforms, collisionItemPlatform(weap), null, this);
+          game.physics.arcade.collide(player2, weap.sprite,cb, null, this);
+        }
+      }
+  }
 
 
 	if(player !== undefined){
@@ -283,14 +292,16 @@ var playState = {
   },
 
   addWeapon:function(x,y,arme){
-    weapon=game.add.sprite(x,y,arme.spriteName);
+    var armetmp=game.add.sprite(x,y,arme.spriteName);
+    arme.sprite=armetmp;
 
-    weapon.scale.setTo(0.5,1);
+    weapon=arme;
 
-  	game.physics.arcade.enable(weapon);
-  	weapon.body.gravity.y=2700;
+    weapon.sprite.scale.setTo(0.5,1);
+
+  	game.physics.arcade.enable(weapon.sprite);
+  	weapon.sprite.body.gravity.y=2700;
     weapons[arme.id]=weapon;
-    console.log(weapons);
   },
 
 
@@ -334,13 +345,16 @@ var playState = {
 
 
 function pickUpItem(player, item){
-	isPickedUp = true;
+
+	if(item.owner===undefined){
+    console.log(item);
+    item.owner=player;
+  }
 }
 
 function collisionItemPlatform(item){
   if(item!== undefined)
-	   //item.body.velocity.x = 0
-	return false
+	   item.sprite.body.velocity.x = 0;
 }
 
 function getCoordinates (x,y){

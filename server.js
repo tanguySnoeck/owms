@@ -50,10 +50,10 @@ io.on('connection',function(socket){
 
 function createWeapon(){
   var arme={id:server.lastArmeID++,
-          spriteName:"sword",
-          owner:null
+    spriteName:"sword",
+    sprite:undefined,
+    owner:undefined
   };
-  console.log(arme.id);
   io.emit('spawnArme',randomInt(0,6000),randomInt(0,800),arme);
 }
 
