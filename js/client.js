@@ -30,3 +30,7 @@ Client.socket.on('remove',function(id){
 Client.sendClick = function(x,y){
   Client.socket.emit('click',{x:x,y:y});
 };
+
+Client.socket.on('spawnArme',function(x,y,arme){
+  playState.addWeapon(x,y,arme);
+});

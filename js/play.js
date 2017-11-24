@@ -1,7 +1,9 @@
 var sprite, platforms, hidePlatforms, traversePlatforms, player, cursors;
 var scoreText, sword, isPickedUp = false;
 var playerMap = {};
+var weapons= {};
 var hitTraversePlatform;
+var weapon;
 
 var playState = {
   create: function(){
@@ -169,12 +171,12 @@ var playState = {
 		ground.scale.setTo(0.75,0.5);
 		ground.body.immovable=true;*/
 
-  	sword = game.add.sprite(200,500,'sword');
+  	/*sword = game.add.sprite(200,500,'sword');
     console.log("le joueur"+player);
     sword.scale.setTo(0.5,1);
 
   	game.physics.arcade.enable(sword);
-  	sword.body.gravity.y=2700;
+  	sword.body.gravity.y=2700;*/
 
   	cursors = game.input.keyboard.createCursorKeys();
   	getCoordinates(32,game.world.height-150);
@@ -192,21 +194,27 @@ var playState = {
     	//hitTraversePlatform = game.physics.arcade.overlap(player2,traversePlatforms);
 
     	game.physics.arcade.collide(player2,platforms);
-    	game.physics.arcade.collide(player2, sword, pickUpItem, null, this);
+    	//game.physics.arcade.collide(player2, weapon, pickUpItem, null, this);
 
+      /*
       if(isPickedUp){
-    		sword.body.x = player2.body.x
-    		sword.body.y = player2.body.y
-    		if(game.input.activePointer.isDown){
+    		weapon.body.x = player2.body.x
+    		weapon.body.y = player2.body.y
+
+
+        if(game.input.activePointer.isDown){
     			isPickedUp = false;
     			sword.body.velocity.x = 500;
 
     			game.physics.arcade.moveToPointer(sword, 3000)
     			sword.body.moveTo(2000, 300, Phaser.ANGLE_RIGHT)
     		}
-    	}
+    	}*/
   	}
-    game.physics.arcade.collide(sword, platforms, collisionItemPlatform(sword), null, this);
+    for(var weap in weapons){
+      game.physics.arcade.collide(weapons[weap], platforms, collisionItemPlatform(weap), null, this);
+    }
+
 
 
 	if(player !== undefined){
@@ -274,6 +282,18 @@ var playState = {
     }
   },
 
+  addWeapon:function(x,y,arme){
+    weapon=game.add.sprite(x,y,arme.spriteName);
+
+    weapon.scale.setTo(0.5,1);
+
+  	game.physics.arcade.enable(weapon);
+  	weapon.body.gravity.y=2700;
+    weapons[arme.id]=weapon;
+    console.log(weapons);
+  },
+
+
   movePlayer : function(movedPlayer){
 
 
@@ -318,7 +338,8 @@ function pickUpItem(player, item){
 }
 
 function collisionItemPlatform(item){
-	item.body.velocity.x = 0
+  if(item!== undefined)
+	   //item.body.velocity.x = 0
 	return false
 }
 
