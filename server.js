@@ -49,7 +49,7 @@ io.on('connection',function(socket){
     });
 });
 
-setInterval(createWeapon,4000);
+setInterval(createWeapon,8000);
 
 
 function createWeapon(){
