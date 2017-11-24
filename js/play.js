@@ -1,5 +1,5 @@
-var sprite, platforms, hidePlatforms, traversePlatforms, player, cursors;
-var scoreText, sword, isPickedUp = false;
+var sprite, platforms, hidePlatforms, traversePlatforms, player, cursors, kalash, bullet;
+var scoreText, sword, isPickedUp = null, isCollected = false;
 var playerMap = {};
 var hitTraversePlatform;
 
@@ -176,6 +176,25 @@ var playState = {
   	game.physics.arcade.enable(sword);
   	sword.body.gravity.y=2700;
 
+
+    //kalash
+    kalash = game.add.weapon(30, 'bullet');
+    kalash.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
+    kalash.bulletSpeed = 4000;
+    kalash.fireRate = 60;
+    spritek = game.add.sprite(100, 500, 'kalash');
+    spritek.frame = 1;
+
+
+
+    game.physics.arcade.enable(spritek);
+    spritek.inputEnabled = true;
+    spritek.body.gravity.y=3000;
+    spritek.scale.setTo(0.25, 0.25);
+    spritek.anchor.setTo(0.5,0.3);
+    kalash.trackSprite(spritek, 14, 0);
+
+
   	cursors = game.input.keyboard.createCursorKeys();
   	getCoordinates(32,game.world.height-150);
   	Client.askNewPlayer();
@@ -194,17 +213,33 @@ var playState = {
     	game.physics.arcade.collide(player2,platforms);
     	game.physics.arcade.collide(player2, sword, pickUpItem, null, this);
 
-      if(isPickedUp){
+      //kalash
+      game.physics.arcade.collide(spritek, platforms);
+      game.physics.arcade.collide(player, spritek, pickUpItem, null, this);
+      game.physics.arcade.collide(spritek, platforms, collisionItemPlatform(spritek), null, this);
+
+      if(isPickedUp == sword){
     		sword.body.x = player2.body.x
     		sword.body.y = player2.body.y
     		if(game.input.activePointer.isDown){
-    			isPickedUp = false;
+    			isPickedUp = null;
     			sword.body.velocity.x = 500;
 
     			game.physics.arcade.moveToPointer(sword, 3000)
     			sword.body.moveTo(2000, 300, Phaser.ANGLE_RIGHT)
     		}
-    	}
+    	}else if(isPickedUp == spritek){
+
+        if(game.input.activePointer.isDown){
+          isPickedUp = null;
+        }
+        cursors = this.input.keyboard.createCursorKeys();
+        fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
+      if (fireButton.isDown)
+          {
+              kalash.fire();
+          }
+      }
   	}
     game.physics.arcade.collide(sword, platforms, collisionItemPlatform(sword), null, this);
 
@@ -215,11 +250,17 @@ var playState = {
     if(cursors.left.isDown)
 		{
 			player.body.velocity.x=-300;
+      kalash.fireAngle = 180;
 			player.animations.play('left');
+      spritek.frame = 0;
+      spritek.alignIn(player, Phaser.RIGHT_CENTER);
 
 		}else if (cursors.right.isDown) {
 			player.body.velocity.x=300;
+      kalash.fireAngle = 0;
 			player.animations.play('right');
+      spritek.frame = 1;
+      spritek.alignIn(player, Phaser.LEFT_CENTER);
 		}else {
 			player.animations.stop();
 			player.frame=4;
@@ -314,7 +355,9 @@ var playState = {
 
 
 function pickUpItem(player, item){
-	isPickedUp = true;
+  if(isPickedUp == null){
+    	   isPickedUp = item;
+  }
 }
 
 function collisionItemPlatform(item){
