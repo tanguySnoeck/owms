@@ -378,7 +378,7 @@ function pickUpItem(player2, item){
 }
 
 function collisionItemPlatform(item){
-  if(item!== undefined)
+  if(item!== undefined && item.sprite!==undefined)
 	   item.sprite.body.velocity.x = 0;
 }
 
