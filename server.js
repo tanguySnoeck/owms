@@ -3,14 +3,14 @@ var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io').listen(server);
 var MongoClient = require("mongodb").MongoClient;
-var url = "mongodb://<dbuser>:<dbpassword>@ds151544.mlab.com:51544/owms";
+var url = 'mongodb://tanguy:owms@ds151544.mlab.com:51544/owms';
 
-/*MongoClient.connect(url, function(err, db){
+MongoClient.connect(url, function(err, db){
   if(err)throw err;
-  console.log("Connected to database");
+  console.log("Connection established !");
   db.close();
 });
-*/
+
 
 app.use('/css',express.static(__dirname + '/css'));
 app.use('/js',express.static(__dirname + '/js'));
