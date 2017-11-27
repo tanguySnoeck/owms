@@ -2,6 +2,15 @@ var express = require('express');
 var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io').listen(server);
+var MongoClient = require("mongodb").MongoClient;
+var url = "mongodb://<dbuser>:<dbpassword>@ds151544.mlab.com:51544/owms";
+
+/*MongoClient.connect(url, function(err, db){
+  if(err)throw err;
+  console.log("Connected to database");
+  db.close();
+});
+*/
 
 app.use('/css',express.static(__dirname + '/css'));
 app.use('/js',express.static(__dirname + '/js'));

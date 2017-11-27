@@ -5,8 +5,10 @@
   "main": "index.js",
   "dependencies": {
     "express": "^4.16.2",
+    "mongodb": "^2.2.33",
     "phaser-ce": "^2.9.1",
-    "socket.io": "^2.0.4"
+    "socket.io": "^2.0.4",
+    "mogodb" : "2.2.*"
   },
   "devDependencies": {},
   "scripts": {
