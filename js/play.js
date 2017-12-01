@@ -186,7 +186,6 @@ var playState = {
     spritek.frame = 1;
 
 
-
     game.physics.arcade.enable(spritek);
     spritek.inputEnabled = true;
     spritek.body.gravity.y=3000;
@@ -217,6 +216,10 @@ var playState = {
       game.physics.arcade.collide(spritek, platforms);
       game.physics.arcade.collide(player, spritek, pickUpItem, null, this);
       game.physics.arcade.collide(spritek, platforms, collisionItemPlatform(spritek), null, this);
+      //pas sur
+      game.physics.arcade.collide(kalash, platforms);
+      game.physics.arcade.collide(player, spritek, pickUpItem, null, this);
+    //  game.physics.arcade.collide(kalash, platforms, collisionItemPlatform(kalash), null, this);
 
       if(isPickedUp == sword){
     		sword.body.x = player2.body.x
@@ -229,7 +232,6 @@ var playState = {
     			sword.body.moveTo(2000, 300, Phaser.ANGLE_RIGHT)
     		}
     	}else if(isPickedUp == spritek){
-
         if(game.input.activePointer.isDown){
           isPickedUp = null;
         }
