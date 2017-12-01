@@ -1,7 +1,10 @@
-var sprite, platforms, hidePlatforms, traversePlatforms, player, cursors;
+var sprite, platforms, hidePlatforms,trap, pickTrap, traversePlatforms, player, cursors,hitTraversePlatform,timer;
+var portal, portalPlatform, portalLeft, portalRight;
 var scoreText, sword, isPickedUp = false;
+var booleenBloqué = false;
+var trapKey;
+var count;
 var playerMap = {};
-var hitTraversePlatform;
 
 var playState = {
   create: function(){
@@ -14,6 +17,9 @@ var playState = {
   	hidePlatforms.enableBody=true;
   	traversePlatforms=game.add.group();
   	traversePlatforms.enableBody=true;
+    portalPlatform = game.add.group();
+    portalPlatform.enableBody=true
+
 
     var ground;
   	for(var i=1400; i<6000; i+=400){
@@ -160,6 +166,11 @@ var playState = {
 		ground.body.immovable = true;
 		ground.body.checkCollision.down=false;
 
+    portal = platforms.create(6,686,'portalDown');
+    portal.body.immovable=true;
+    portal = platforms.create(5955,686,'portalDown');
+    portal.body.immovable=true;
+
 		/*ground = hidePlatforms.create(405,900,'ground');
 		ground.scale.setTo(0.75,0.5);
 		ground.body.immovable=true;
@@ -169,6 +180,12 @@ var playState = {
 		ground.scale.setTo(0.75,0.5);
 		ground.body.immovable=true;*/
 
+    portalLeft = game.add.sprite(0,615,'portal');
+    portalLeft.frame=1;
+    portalRight = game.add.sprite(5949,615,'portal');
+    portalRight.frame=1;
+
+
   	sword = game.add.sprite(200,500,'sword');
     console.log("le joueur"+player);
     sword.scale.setTo(0.5,1);
@@ -176,13 +193,35 @@ var playState = {
   	game.physics.arcade.enable(sword);
   	sword.body.gravity.y=2700;
 
+    //trap
+    trapKey = game.input.keyboard.addKey(Phaser.KeyCode.A);
+    console.log(""+trapKey);
+
+    pickTrap = game.add.sprite(300,500,'trap');
+    pickTrap.scale.setTo(0.1,0.1);
+    pickTrap.frame=1;
+    game.physics.arcade.enable(pickTrap);
+    pickTrap.body.gravity.y=2700
+    /*trap = game.add.sprite(300,500,'trap');
+    trap.scale.setTo(0.15,0.15);
+    trap.frame=4;
+    trap.animations.add('close', [4,5,0,1,2],10);
+    game.physics.arcade.enable(trap);
+    trap.body.gravity.y=2700;*/
+
+    //timer
+    timer = game.time.create(false);
+    timer.add(4000,stopPlayer,this);
+
   	cursors = game.input.keyboard.createCursorKeys();
   	getCoordinates(32,game.world.height-150);
   	Client.askNewPlayer();
   },
 
   update: function(){
+
     var hitPlatform = game.physics.arcade.collide(player, platforms);
+    //var portalPlatform = game.physics.arcade.collide(player,portalPlatform);
     var hitHidePlatform;
   	for(var pl in playerMap){
   		var player2=playerMap[pl];
@@ -206,10 +245,50 @@ var playState = {
     		}
     	}
   	}
+
     game.physics.arcade.collide(sword, platforms, collisionItemPlatform(sword), null, this);
 
+    var hitPlayerTrap;
+    game.physics.arcade.collide(pickTrap, platforms, collisionItemPlatform(pickTrap), null, this);
+    var hitPickTrap = game.physics.arcade.overlap(player,pickTrap);
+    if(hitPickTrap){
+      count=1;
+      pickTrap.kill();
+    }
+    console.log(""+trapKey);
+    if(trapKey.isDown && count>0){
+      trap = game.add.sprite(player.position.x+33,player.position.y,'trap');
+      trap.scale.setTo(0.15,0.15);
+      trap.frame=4;
+      trap.animations.add('close', [4,5,0,1,2],10);
+      game.physics.arcade.enable(trap);
+      trap.body.gravity.y=2700;
+      count--;
+    }
+    if(trap!==undefined){
+      game.physics.arcade.collide(trap, platforms, collisionItemPlatform(trap), null, this);
+      hitPlayerTrap = game.physics.arcade.overlap(player,trap);
 
-	if(player !== undefined){
+    }
+
+
+    if(hitPlayerTrap){
+      trap.animations.play('close',60,false,true);
+      booleenBloqué = true;
+      player.animations.stop();
+      trap.animations.play('close',60,false,true);
+      timer.start();
+
+    }
+    if(hitPlatform && (player.position.x <20||player.position.x>5960)){
+      booleenBloqué=true;
+      portalLeft.frame=0;
+      portalRight.frame=0;
+      player.animations.stop();
+      //player.kill();
+    }
+
+	if(player !== undefined && !booleenBloqué){
 		player.body.velocity.x=0;
 
     if(cursors.left.isDown)
@@ -329,6 +408,9 @@ function killPlayer(){
 	player.kill();
 	//scoreText.text = "You died, loser";
 }
+ function stopPlayer(){
+   booleenBloqué=false;
+ }
 function resetPlayer(){
 	player.reset(32,500);
 }
