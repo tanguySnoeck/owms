@@ -1,9 +1,12 @@
-var sprite, platforms, hidePlatforms, traversePlatforms, player, cursors;
+var sprite, platforms, hidePlatforms, traversePlatforms, player, cursors,trap,pickTrap, trapKey,timer;
+var portal, portalPlatform, portalLeft, portalRight;
 var scoreText, sword, isPickedUp = false;
+var booleenBloque = false;
 var playerMap = {};
 var weapons= {};
 var hitTraversePlatform;
 var activeWeapon;
+var count;
 
 var playState = {
   create: function(){
@@ -162,6 +165,11 @@ var playState = {
 		ground.body.immovable = true;
 		ground.body.checkCollision.down=false;
 
+    portal = platforms.create(6,686,'portalDown');
+    portal.body.immovable=true;
+    portal = platforms.create(5955,686,'portalDown');
+    portal.body.immovable=true;
+
 		/*ground = hidePlatforms.create(405,900,'ground');
 		ground.scale.setTo(0.75,0.5);
 		ground.body.immovable=true;
@@ -177,6 +185,23 @@ var playState = {
 
   	game.physics.arcade.enable(sword);
   	sword.body.gravity.y=2700;*/
+
+    portalLeft = game.add.sprite(0,615,'portal');
+    portalLeft.frame=1;
+    portalRight = game.add.sprite(5949,615,'portal');
+    portalRight.frame=1;
+
+    trapKey = game.input.keyboard.addKey(Phaser.KeyCode.A);
+    console.log(""+trapKey);
+
+    pickTrap = game.add.sprite(300,500,'trap');
+    pickTrap.scale.setTo(0.1,0.1);
+    pickTrap.frame=1;
+    game.physics.arcade.enable(pickTrap);
+    pickTrap.body.gravity.y=2700;
+
+    timer = game.time.create(false);
+    timer.add(4000,stopPlayer,this);
 
   	cursors = game.input.keyboard.createCursorKeys();
   	getCoordinates(32,game.world.height-150);
@@ -194,6 +219,7 @@ var playState = {
     	//hitTraversePlatform = game.physics.arcade.overlap(player2,traversePlatforms);
 
     	game.physics.arcade.collide(player2,platforms);
+
     	//game.physics.arcade.collide(player2, weapon, pickUpItem, null, this);
 
       /*
@@ -229,8 +255,46 @@ var playState = {
       }
   }
 
+    var hitPlayerTrap;
+    game.physics.arcade.collide(pickTrap, platforms, collisionItemPlatform(pickTrap), null, this);
+    var hitPickTrap = game.physics.arcade.overlap(player,pickTrap);
+    if(hitPickTrap){
+      count=1;
+      pickTrap.kill();
+    }
+    console.log(""+trapKey);
+    if(trapKey.isDown && count>0){
+      trap = game.add.sprite(player.position.x+33,player.position.y,'trap');
+      trap.scale.setTo(0.15,0.15);
+      trap.frame=4;
+      trap.animations.add('close', [4,5,0,1,2],10);
+      game.physics.arcade.enable(trap);
+      trap.body.gravity.y=2700;
+      count--;
+    }
+    if(trap!==undefined){
+      game.physics.arcade.collide(trap, platforms, collisionItemPlatform(trap), null, this);
+      hitPlayerTrap = game.physics.arcade.overlap(player,trap);
 
-	if(player !== undefined){
+    }
+    if(hitPlayerTrap){
+      trap.animations.play('close',60,false,true);
+      booleenBloque = true;
+      player.animations.stop();
+      timer.start();
+      console.log("timer lancé");
+
+    }
+
+  if(hitPlatform && (player.position.x <20||player.position.x>5960)){
+        booleenBloque=true;
+        portalLeft.frame=0;
+        portalRight.frame=0;
+        player.animations.stop();
+        //player.kill();
+      }
+
+	if(player !== undefined && !booleenBloque){
 		player.body.velocity.x=0;
 
     if(cursors.left.isDown)
@@ -388,6 +452,11 @@ function getCoordinates (x,y){
 function killPlayer(){
 	player.kill();
 }
+
+function stopPlayer(){
+   booleenBloque=false;
+   console.log("timer fini");
+ }
 
 function killWeapon(weapon){
   if(weapon.sprite!==undefined)
