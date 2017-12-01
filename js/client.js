@@ -23,10 +23,22 @@ Client.socket.on('allplayers',function(data){
     });
 });
 
+Client.supprimerArme=function(activeWeapon){
+    Client.socket.emit('supprArme',{id : activeWeapon.id});
+};
+
 Client.socket.on('remove',function(id){
     playState.removePlayer(id);
+});
+
+Client.socket.on('supprArme',function(idWeapon){
+  playState.supprArme(idWeapon);
 });
 
 Client.sendClick = function(x,y){
   Client.socket.emit('click',{x:x,y:y});
 };
+
+Client.socket.on('spawnArme',function(x,y,arme){
+  playState.addWeapon(x,y,arme);
+});

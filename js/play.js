@@ -1,10 +1,9 @@
-var sprite, platforms, hidePlatforms,trap, pickTrap, traversePlatforms, player, cursors,hitTraversePlatform,timer;
-var portal, portalPlatform, portalLeft, portalRight;
+var sprite, platforms, hidePlatforms, traversePlatforms, player, cursors;
 var scoreText, sword, isPickedUp = false;
-var booleenBloqué = false;
-var trapKey;
-var count;
 var playerMap = {};
+var weapons= {};
+var hitTraversePlatform;
+var activeWeapon;
 
 var playState = {
   create: function(){
@@ -17,9 +16,6 @@ var playState = {
   	hidePlatforms.enableBody=true;
   	traversePlatforms=game.add.group();
   	traversePlatforms.enableBody=true;
-    portalPlatform = game.add.group();
-    portalPlatform.enableBody=true
-
 
     var ground;
   	for(var i=1400; i<6000; i+=400){
@@ -166,11 +162,6 @@ var playState = {
 		ground.body.immovable = true;
 		ground.body.checkCollision.down=false;
 
-    portal = platforms.create(6,686,'portalDown');
-    portal.body.immovable=true;
-    portal = platforms.create(5955,686,'portalDown');
-    portal.body.immovable=true;
-
 		/*ground = hidePlatforms.create(405,900,'ground');
 		ground.scale.setTo(0.75,0.5);
 		ground.body.immovable=true;
@@ -180,38 +171,12 @@ var playState = {
 		ground.scale.setTo(0.75,0.5);
 		ground.body.immovable=true;*/
 
-    portalLeft = game.add.sprite(0,615,'portal');
-    portalLeft.frame=1;
-    portalRight = game.add.sprite(5949,615,'portal');
-    portalRight.frame=1;
-
-
-  	sword = game.add.sprite(200,500,'sword');
+  	/*sword = game.add.sprite(200,500,'sword');
     console.log("le joueur"+player);
     sword.scale.setTo(0.5,1);
 
   	game.physics.arcade.enable(sword);
-  	sword.body.gravity.y=2700;
-
-    //trap
-    trapKey = game.input.keyboard.addKey(Phaser.KeyCode.A);
-    console.log(""+trapKey);
-
-    pickTrap = game.add.sprite(300,500,'trap');
-    pickTrap.scale.setTo(0.1,0.1);
-    pickTrap.frame=1;
-    game.physics.arcade.enable(pickTrap);
-    pickTrap.body.gravity.y=2700
-    /*trap = game.add.sprite(300,500,'trap');
-    trap.scale.setTo(0.15,0.15);
-    trap.frame=4;
-    trap.animations.add('close', [4,5,0,1,2],10);
-    game.physics.arcade.enable(trap);
-    trap.body.gravity.y=2700;*/
-
-    //timer
-    timer = game.time.create(false);
-    timer.add(4000,stopPlayer,this);
+  	sword.body.gravity.y=2700;*/
 
   	cursors = game.input.keyboard.createCursorKeys();
   	getCoordinates(32,game.world.height-150);
@@ -219,9 +184,7 @@ var playState = {
   },
 
   update: function(){
-
     var hitPlatform = game.physics.arcade.collide(player, platforms);
-    //var portalPlatform = game.physics.arcade.collide(player,portalPlatform);
     var hitHidePlatform;
   	for(var pl in playerMap){
   		var player2=playerMap[pl];
@@ -231,64 +194,43 @@ var playState = {
     	//hitTraversePlatform = game.physics.arcade.overlap(player2,traversePlatforms);
 
     	game.physics.arcade.collide(player2,platforms);
-    	game.physics.arcade.collide(player2, sword, pickUpItem, null, this);
+    	//game.physics.arcade.collide(player2, weapon, pickUpItem, null, this);
 
+      /*
       if(isPickedUp){
-    		sword.body.x = player2.body.x
-    		sword.body.y = player2.body.y
-    		if(game.input.activePointer.isDown){
+    		weapon.body.x = player2.body.x
+    		weapon.body.y = player2.body.y
+
+
+        if(game.input.activePointer.isDown){
     			isPickedUp = false;
     			sword.body.velocity.x = 500;
 
     			game.physics.arcade.moveToPointer(sword, 3000)
     			sword.body.moveTo(2000, 300, Phaser.ANGLE_RIGHT)
     		}
-    	}
-  	}
+    	}*/
 
-    game.physics.arcade.collide(sword, platforms, collisionItemPlatform(sword), null, this);
-
-    var hitPlayerTrap;
-    game.physics.arcade.collide(pickTrap, platforms, collisionItemPlatform(pickTrap), null, this);
-    var hitPickTrap = game.physics.arcade.overlap(player,pickTrap);
-    if(hitPickTrap){
-      count=1;
-      pickTrap.kill();
-    }
-    console.log(""+trapKey);
-    if(trapKey.isDown && count>0){
-      trap = game.add.sprite(player.position.x+33,player.position.y,'trap');
-      trap.scale.setTo(0.15,0.15);
-      trap.frame=4;
-      trap.animations.add('close', [4,5,0,1,2],10);
-      game.physics.arcade.enable(trap);
-      trap.body.gravity.y=2700;
-      count--;
-    }
-    if(trap!==undefined){
-      game.physics.arcade.collide(trap, platforms, collisionItemPlatform(trap), null, this);
-      hitPlayerTrap = game.physics.arcade.overlap(player,trap);
-
-    }
+      for(var id in weapons){
+        var weap=weapons[id];
+        if(weap.owner===player2){
+            weap.sprite.body.x=player2.body.x;
+            weap.sprite.body.y=player2.body.y;
+        }else if(weap.owner===undefined){
+          function cb1(){
+            pickUpItem(player2,weap);
+          }
+          function cb2(){
+            collisionItemPlatform(weap)
+          }
+          game.physics.arcade.collide(weap.sprite, platforms, cb2, null, this);
+          game.physics.arcade.collide(player2, weap.sprite,cb1, null, this);
+        }
+      }
+  }
 
 
-    if(hitPlayerTrap){
-      trap.animations.play('close',60,false,true);
-      booleenBloqué = true;
-      player.animations.stop();
-      trap.animations.play('close',60,false,true);
-      timer.start();
-
-    }
-    if(hitPlatform && (player.position.x <20||player.position.x>5960)){
-      booleenBloqué=true;
-      portalLeft.frame=0;
-      portalRight.frame=0;
-      player.animations.stop();
-      //player.kill();
-    }
-
-	if(player !== undefined && !booleenBloqué){
+	if(player !== undefined){
 		player.body.velocity.x=0;
 
     if(cursors.left.isDown)
@@ -353,6 +295,25 @@ var playState = {
     }
   },
 
+  addWeapon:function(x,y,arme){
+    var weapon;
+
+    var armetmp=game.add.sprite(x,y,arme.spriteName);
+    arme.sprite=armetmp;
+
+    weapon=arme;
+
+    weapon.sprite.scale.setTo(0.5,1);
+
+  	game.physics.arcade.enable(weapon.sprite);
+  	weapon.sprite.body.gravity.y=2700;
+    weapon.sprite.checkWorldBounds = true;
+    weapon.sprite.events.onOutOfBounds.add(killWeapon,weapon);
+    weapons[arme.id]=weapon;
+    console.log(weapons);
+  },
+
+
   movePlayer : function(movedPlayer){
 
 
@@ -388,17 +349,37 @@ var playState = {
   removePlayer : function(id){
       playerMap[id].destroy();
       delete playerMap[id];
+  },
+
+  supprArme : function(id){
+
+    for(var idweap in weapons){
+      if(weapons[idweap].id === id){
+        weapons[idweap].sprite.kill();
+        delete weapons[idweap];
+        if(activeWeapon.id===id)
+          activeWeapon=undefined;
+        break;
+      }
+    }
   }
 };
 
 
-function pickUpItem(player, item){
-	isPickedUp = true;
+function pickUpItem(player2, item){
+	if(item.owner===undefined){
+    item.owner=player2;
+    if(player2===player)
+      if(activeWeapon!==undefined){
+        Client.supprimerArme(activeWeapon);
+      }
+      activeWeapon=item;
+  }
 }
 
 function collisionItemPlatform(item){
-	item.body.velocity.x = 0
-	return false
+  if(item!== undefined && item.sprite!==undefined)
+	   item.sprite.body.velocity.x = 0;
 }
 
 function getCoordinates (x,y){
@@ -406,11 +387,14 @@ function getCoordinates (x,y){
 }
 function killPlayer(){
 	player.kill();
-	//scoreText.text = "You died, loser";
 }
- function stopPlayer(){
-   booleenBloqué=false;
- }
+
+function killWeapon(weapon){
+  if(weapon.sprite!==undefined)
+    weapon.sprite.kill();
+}
 function resetPlayer(){
 	player.reset(32,500);
+  if(activeWeapon!==undefined)
+    Client.supprimerArme(activeWeapon);
 }

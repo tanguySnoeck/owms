@@ -13,3 +13,4 @@ deploy_job:
     - dpl --skip_cleanup --provider=heroku --app=$HEROKU_APP_NAME --api-key=$HEROKU_API_KEY
     only:
     - master
+    - multi

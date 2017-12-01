@@ -12,6 +12,7 @@ app.get('/',function(req,res){
 });
 
 server.lastPlayderID = 0;
+server.lastArmeID=0;
 
 server.listen(process.env.PORT || 8081,function(){
     console.log('Listening on '+server.address().port);
@@ -29,7 +30,6 @@ io.on('connection',function(socket){
         socket.broadcast.emit('newplayer',socket.player);
 
         socket.on('click',function(data){
-            console.log('click to '+data.x+', '+data.y);
             socket.player.x = data.x;
             socket.player.y = data.y;
             socket.broadcast.emit('move',socket.player);
@@ -40,10 +40,27 @@ io.on('connection',function(socket){
         });
     });
 
+    socket.on('supprArme',function(data){
+      io.emit('supprArme',data.id);
+    });
+
     socket.on('test',function(){
         console.log('test received');
     });
 });
+
+setInterval(createWeapon,8000);
+
+
+function createWeapon(){
+  var arme={id:server.lastArmeID++,
+    spriteName:"sword",
+    sprite:undefined,
+    owner:undefined
+  };
+  io.emit('spawnArme',randomInt(350,800),randomInt(850,851),arme);
+}
+
 
 
 function getAllPlayers(){
