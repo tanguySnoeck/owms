@@ -1,4 +1,4 @@
-var sprite, platforms, hidePlatforms, traversePlatforms, player, cursors;
+var sprite, platforms, hidePlatforms, traversePlatforms, player, cursors,playerData;
 var scoreText, sword, isPickedUp = false;
 var playerMap = {};
 var weapons= {};
@@ -41,19 +41,12 @@ var playState = {
 		ground.body.immovable=true;
 		ground.body.checkCollision.left = false;
 
-		ground = platforms.create(0,930,'ground');
-		ground.scale.setTo(0.70,1);
-		ground.body.immovable=true;
-		ground.body.checkCollision.left = false;
+
 
 		ground = platforms.create(5600,716,'ground');
 		ground.scale.setTo(0.025,2);
 		ground.body.immovable=true;
 
-		ground = platforms.create(5720,930,'ground');
-		ground.scale.setTo(0.70,1);
-		ground.body.immovable=true;
-		ground.body.checkCollision.left = false;
 
     //traversePlatforms
 		ground = platforms.create(400,764,'ground');
@@ -137,15 +130,7 @@ var playState = {
 		ground.body.immovable = true;
 		ground.body.checkCollision.down=false;
 
-		ground = platforms.create(885,950,'ground');
-		ground.scale.setTo(0.0125,0.5);
-		ground.body.immovable = true;
-		ground.body.checkCollision.down=false;
 
-		ground = platforms.create(5110,950,'ground');
-		ground.scale.setTo(0.0125,0.5);
-		ground.body.immovable = true;
-		ground.body.checkCollision.down=false;
 
 		ground = platforms.create(2750,800,'ground');
 		ground.scale.setTo(1.25,0.5);
@@ -187,7 +172,7 @@ var playState = {
     var hitPlatform = game.physics.arcade.collide(player, platforms);
     var hitHidePlatform;
   	for(var pl in playerMap){
-  		var player2=playerMap[pl];
+  		var player2=playerMap[pl].sprite;
   		player2.body.velocity.x=0;
 
         //hitHidePlatform = game.physics.arcade.collide(player2,hidePlatforms);
@@ -211,22 +196,25 @@ var playState = {
     		}
     	}*/
 
+
       for(var id in weapons){
         var weap=weapons[id];
-        if(weap.owner===player2){
-            weap.sprite.body.x=player2.body.x;
-            weap.sprite.body.y=player2.body.y;
-        }else if(weap.owner===undefined){
+
+        if(weap.owner===undefined){
           function cb1(){
-            pickUpItem(player2,weap);
+            pickUpItem(playerMap[pl],weap);
           }
           function cb2(){
             collisionItemPlatform(weap)
           }
           game.physics.arcade.collide(weap.sprite, platforms, cb2, null, this);
-          game.physics.arcade.collide(player2, weap.sprite,cb1, null, this);
+          game.physics.arcade.overlap(player2, weap.sprite,cb1, null, this);
+        }else if(weap.owner.id===playerMap[pl].id){
+          console.log("owned");
         }
       }
+
+
   }
 
 
@@ -262,6 +250,12 @@ var playState = {
 			player.body.velocity.y=1000;
 		}
 
+    if(playerData.activeWeapon!==undefined){
+      playerData.activeWeapon.sprite.position.x=player.position.x;
+      playerData.activeWeapon.sprite.position.y=player.position.y;
+      playerData.activeWeapon.sprite.body.gravity=0;
+    }
+
     getCoordinates(player.position.x,player.position.y);
 
   }
@@ -269,35 +263,38 @@ var playState = {
   },
 
   render : function (){
-    game.debug.cameraInfo(game.camera, 32, 32, "#000000");
+    //game.debug.cameraInfo(game.camera, 32, 32, "#000000");
 
-    game.debug.pointer( game.input.activePointer,false,null,null,"#0000000" );
+    //game.debug.pointer( game.input.activePointer,false,null,null,"#0000000" );
   },
 
-  addNewPlayer : function(id,x,y){
-    playerMap[id] = game.add.sprite(x,y,'dude');
-    game.physics.arcade.enable(playerMap[id]);
-		playerMap[id].body.bounce.y=0;
-		playerMap[id].body.gravity.y=2700;
-		playerMap[id].body.collideWorldBounds=true;
-		playerMap[id].animations.add('left',[0,1,2,3],10,true);
-		playerMap[id].animations.add('right',[5,6,7,8],10,true);
-    playerMap[id].scale.setTo(0.5,1);
+  addNewPlayer : function(data){
+    var id=data.id;
+    var sprite= game.add.sprite(30,500,'dude');
+    game.physics.arcade.enable(sprite);
+    sprite.body.bounce.y=0;
+    sprite.body.gravity.y=2700;
+    sprite.body.collideWorldBounds=true;
+    sprite.animations.add('left',[0,1,2,3],10,true);
+    sprite.animations.add('right',[5,6,7,8],10,true);
+    sprite.scale.setTo(0.5,1);
 
-  	playerMap[id].body.collideWorldBounds=true;
-    playerMap[id].checkWorldBounds = true;
-    playerMap[id].events.onOutOfBounds.add(killPlayer,this);
-  	playerMap[id].events.onOutOfBounds.add(resetPlayer,this);
+    sprite.body.collideWorldBounds=true;
+    sprite.checkWorldBounds = true;
+    sprite.events.onOutOfBounds.add(killPlayer,this);
+    sprite.events.onOutOfBounds.add(resetPlayer,this);
+    data.sprite=sprite;
+    playerMap[id]=data;
 
     if(player===undefined){
-      player=playerMap[id];
-       game.camera.follow(player,Phaser.Camera.FOLLOW_LOCKON);
+      playerData=playerMap[id];
+      player=playerMap[id].sprite;
+      game.camera.follow(player,Phaser.Camera.FOLLOW_LOCKON);
     }
   },
 
   addWeapon:function(x,y,arme){
     var weapon;
-
     var armetmp=game.add.sprite(x,y,arme.spriteName);
     arme.sprite=armetmp;
 
@@ -308,16 +305,14 @@ var playState = {
   	game.physics.arcade.enable(weapon.sprite);
   	weapon.sprite.body.gravity.y=2700;
     weapon.sprite.checkWorldBounds = true;
-    weapon.sprite.events.onOutOfBounds.add(killWeapon,weapon);
+    weapon.sprite.events.onOutOfBounds.add(function() {killWeapon(weapon);},this);
     weapons[arme.id]=weapon;
-    console.log(weapons);
   },
 
 
   movePlayer : function(movedPlayer){
 
-
-	var player2=playerMap[movedPlayer.id];
+	var player2=playerMap[movedPlayer.id].sprite;
 
 	var deplacementH=player2.position.x-movedPlayer.x;
 	var deplacementV=player2.position.y-movedPlayer.y;
@@ -344,36 +339,57 @@ var playState = {
 		player2.body.velocity.x=0;
 		player2.frame=4;
 	}
+
+  if(playerMap[movedPlayer.id].activeWeapon!==undefined){
+    playerMap[movedPlayer.id].activeWeapon.sprite.position.x=player2.position.x;
+    playerMap[movedPlayer.id].activeWeapon.sprite.position.y=player2.position.y;
+  }
   },
 
   removePlayer : function(id){
-      playerMap[id].destroy();
+      playerMap[id].sprite.destroy();
       delete playerMap[id];
   },
 
-  supprArme : function(id){
 
-    for(var idweap in weapons){
-      if(weapons[idweap].id === id){
-        weapons[idweap].sprite.kill();
-        delete weapons[idweap];
-        if(activeWeapon.id===id)
-          activeWeapon=undefined;
-        break;
+  ajoutActive:  function(idPlayer,idItem){
+    var it=weapons[idItem];
+    var player2=playerMap[idPlayer];
+
+    it.owner=player2;
+    player2.activeWeapon=it;
+  },
+
+  supprArme : function(idWeapon){
+    var weap = weapons[idWeapon];
+    console.log(weap);
+
+      weap.sprite.kill();
+        for(var idplayer in playerMap){
+          var tmp=playerMap[idplayer];
+          if(tmp.activeWeapon.id===idWeapon){
+            console.log("test");
+            tmp.activeWeapon=undefined;
+            break;
+          }
+        }
+        delete weapons[idWeapon];
       }
-    }
-  }
+
+
 };
 
 
 function pickUpItem(player2, item){
 	if(item.owner===undefined){
-    item.owner=player2;
-    if(player2===player)
-      if(activeWeapon!==undefined){
-        Client.supprimerArme(activeWeapon);
-      }
-      activeWeapon=item;
+    console.log("2");
+
+    if(player2.activeWeapon!==undefined){
+        console.log(player2.activeWeapon);
+        Client.supprimerArme(player2.activeWeapon);
+    }
+
+    Client.ajouterActiveWeapon(player2.id,item.id);
   }
 }
 
@@ -390,11 +406,13 @@ function killPlayer(){
 }
 
 function killWeapon(weapon){
-  if(weapon.sprite!==undefined)
+  if(weapon.sprite!==undefined){
     weapon.sprite.kill();
+    delete weapons[weapon.id];
+  }
 }
 function resetPlayer(){
 	player.reset(32,500);
-  if(activeWeapon!==undefined)
-    Client.supprimerArme(activeWeapon);
+  if(playerData.activeWeapon!==undefined)
+    Client.supprimerArme(playerData.activeWeapon);
 }

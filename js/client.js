@@ -6,13 +6,13 @@ Client.askNewPlayer = function(){
 };
 
 Client.socket.on('newplayer',function(data){
-    playState.addNewPlayer(data.id,data.x,data.y);
+    playState.addNewPlayer(data);
 });
 
 
 Client.socket.on('allplayers',function(data){
     for(var i = data.length-1; i >= 0; i--){
-        playState.addNewPlayer(data[i].id,data[i].x,data[i].y);
+        playState.addNewPlayer(data[i]);
     }
 
     Client.socket.on('remove',function(id){
@@ -22,6 +22,15 @@ Client.socket.on('allplayers',function(data){
         playState.movePlayer(data);
     });
 });
+
+Client.socket.on('ajoutActive',function(data){
+  playState.ajoutActive(data.idPlayer,data.idItem);
+});
+
+
+Client.ajouterActiveWeapon=function(idPlayer,idItem){
+  Client.socket.emit('ajouterActive',{idPlayer:idPlayer,idItem:idItem});
+};
 
 Client.supprimerArme=function(activeWeapon){
     Client.socket.emit('supprArme',{id : activeWeapon.id});

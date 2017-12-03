@@ -23,8 +23,8 @@ io.on('connection',function(socket){
     socket.on('newplayer',function(){
         socket.player = {
             id: server.lastPlayderID++,
-            x: 32,
-            y: 500
+            sprite:undefined,
+            activeWeapon:undefined
         };
         socket.emit('allplayers',getAllPlayers());
         socket.broadcast.emit('newplayer',socket.player);
@@ -44,12 +44,15 @@ io.on('connection',function(socket){
       io.emit('supprArme',data.id);
     });
 
+    socket.on('ajouterActive',function(data){
+      io.emit('ajoutActive',data);
+    });
+
     socket.on('test',function(){
         console.log('test received');
     });
 });
-
-setInterval(createWeapon,4000);
+setInterval(createWeapon,10000);
 
 
 function createWeapon(){
@@ -58,7 +61,7 @@ function createWeapon(){
     sprite:undefined,
     owner:undefined
   };
-  io.emit('spawnArme',randomInt(350,800),randomInt(850,851),arme);
+  io.emit('spawnArme',randomInt(10,800),randomInt(500,600),arme);
 }
 
 
