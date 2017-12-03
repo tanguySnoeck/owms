@@ -52,6 +52,8 @@ io.on('connection',function(socket){
         console.log('test received');
     });
 });
+
+
 setInterval(createWeapon,10000);
 
 
