@@ -4,12 +4,21 @@ var scoreText, sword, isPickedUp = false;
 var booleenBloque = false;
 var playerMap = {};
 var weapons= {};
-var hitTraversePlatform;
+var hitTraversePlatform,gameTimer;
 var activeWeapon;
 var count;
 
 var playState = {
   create: function(){
+
+    gameTimer = game.time.create(false);
+
+    gameTimer.add(180000, function(){
+      scoreText = game.add.text(500,20, 'Game Over !', {fontsize : '32px', fill:'#000'});
+      scoreText.fixedToCamera = true;
+    }, this);
+
+    gameTimer.start();
     console.log('play create !');
     var bg = game.add.sprite(0,0,'sky');
   	bg.fixedToCamera=true;
@@ -29,6 +38,12 @@ var playState = {
   			ground.body.checkCollision.down=false;
   		}
   	}
+
+    var barConfig = {x:150, y:50};
+    this.myHealthBar = new HealthBar(this.game, barConfig);
+    this.myHealthBar.setFixedToCamera(true);
+    this.myHealthBar.setPercent(50);
+
 		ground = platforms.create(0,700,'ground');
 		ground.scale.setTo(1,0.5);
 		ground.body.immovable=true;
@@ -203,6 +218,7 @@ var playState = {
     timer = game.time.create(false);
     timer.add(4000,stopPlayer,this);
 
+    var aKey = Phaser.Keyboard(Key.A);
   	cursors = game.input.keyboard.createCursorKeys();
   	getCoordinates(32,game.world.height-150);
   	Client.askNewPlayer();
@@ -214,9 +230,6 @@ var playState = {
   	for(var pl in playerMap){
   		var player2=playerMap[pl];
   		player2.body.velocity.x=0;
-
-        //hitHidePlatform = game.physics.arcade.collide(player2,hidePlatforms);
-    	//hitTraversePlatform = game.physics.arcade.overlap(player2,traversePlatforms);
 
     	game.physics.arcade.collide(player2,platforms);
 
@@ -322,6 +335,8 @@ var playState = {
 			player.body.velocity.y=1000;
 		}
 
+
+
     getCoordinates(player.position.x,player.position.y);
 
   }
@@ -375,35 +390,33 @@ var playState = {
 
 
   movePlayer : function(movedPlayer){
+  	var player2=playerMap[movedPlayer.id];
 
+  	var deplacementH=player2.position.x-movedPlayer.x;
+  	var deplacementV=player2.position.y-movedPlayer.y;
 
-	var player2=playerMap[movedPlayer.id];
+  	if(deplacementV>0){
+  		player2.body.velocity.y=10;
+  		player2.position.y=movedPlayer.y;
+  	}else if(deplacementV<0){
+  		player2.body.velocity.y=-10;
+  		player2.position.y=movedPlayer.y;
+  	}
 
-	var deplacementH=player2.position.x-movedPlayer.x;
-	var deplacementV=player2.position.y-movedPlayer.y;
+  	if(deplacementH>0){
+  		player2.animations.play('left');
+  		player2.body.velocity.x=deplacementH;
+  		player2.position.x=movedPlayer.x;
 
-	if(deplacementV>0){
-		player2.body.velocity.y=10;
-		player2.position.y=movedPlayer.y;
-	}else if(deplacementV<0){
-		player2.body.velocity.y=-10;
-		player2.position.y=movedPlayer.y;
-	}
-
-	if(deplacementH>0){
-		player2.animations.play('left');
-		player2.body.velocity.x=deplacementH;
-		player2.position.x=movedPlayer.x;
-
-	}else if(deplacementH<0){
-		player2.animations.play('right');
-		player2.body.velocity.x=deplacementH;
-		player2.position.x=movedPlayer.x;
-	}else{
-		player2.animations.stop();
-		player2.body.velocity.x=0;
-		player2.frame=4;
-	}
+  	}else if(deplacementH<0){
+  		player2.animations.play('right');
+  		player2.body.velocity.x=deplacementH;
+  		player2.position.x=movedPlayer.x;
+  	}else{
+  		player2.animations.stop();
+  		player2.body.velocity.x=0;
+  		player2.frame=4;
+  	}
   },
 
   removePlayer : function(id){
