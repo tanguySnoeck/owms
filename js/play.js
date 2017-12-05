@@ -264,13 +264,7 @@ var playState = {
     }
     console.log(""+trapKey);
     if(trapKey.isDown && count>0){
-      trap = game.add.sprite(player.position.x+33,player.position.y,'trap');
-      trap.scale.setTo(0.15,0.15);
-      trap.frame=4;
-      trap.animations.add('close', [4,5,0,1,2],10);
-      game.physics.arcade.enable(trap);
-      trap.body.gravity.y=2700;
-      count--;
+      trap = lanceTrap(trap);
     }
     if(trap!==undefined){
       game.physics.arcade.collide(trap, platforms, collisionItemPlatform(trap), null, this);
@@ -286,15 +280,17 @@ var playState = {
 
     }
 
-  if(hitPlatform && (player.position.x <20||player.position.x>5960)){
-        booleenBloque=true;
+  if(hitPlatform && (player.position.x <20||player.position.x>5960)&& player.position.y==638){
+      game.lockRender=true;
+      /*booleenBloque=true;
         portalLeft.frame=0;
         portalRight.frame=0;
-        player.animations.stop();
+        player.animations.stop();*/
         //player.kill();
       }
 
 	if(player !== undefined && !booleenBloque){
+    console.log("position y : "+ player.position.y);
 		player.body.velocity.x=0;
 
     if(cursors.left.isDown)
@@ -466,4 +462,15 @@ function resetPlayer(){
 	player.reset(32,500);
   if(activeWeapon!==undefined)
     Client.supprimerArme(activeWeapon);
+}
+
+function lanceTrap(trap){
+  trap = game.add.sprite(player.position.x+33,player.position.y,'trap');
+  trap.scale.setTo(0.15,0.15);
+  trap.frame=4;
+  trap.animations.add('close', [4,5,0,1,2],10);
+  game.physics.arcade.enable(trap);
+  trap.body.gravity.y=2700;
+  count--;
+  return trap;
 }
