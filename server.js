@@ -24,7 +24,8 @@ io.on('connection',function(socket){
         socket.player = {
             id: server.lastPlayderID++,
             sprite:undefined,
-            activeWeapon:undefined
+            activeWeapon:undefined,
+            activeWeaponSprite:undefined
         };
         socket.emit('allplayers',getAllPlayers());
         socket.broadcast.emit('newplayer',socket.player);
@@ -32,7 +33,7 @@ io.on('connection',function(socket){
         socket.on('click',function(data){
             socket.player.x = data.x;
             socket.player.y = data.y;
-            socket.broadcast.emit('move',socket.player);
+            socket.broadcast.emit('move',socket.player,data.fire);
         });
 
         socket.on('disconnect',function(){
@@ -45,7 +46,7 @@ io.on('connection',function(socket){
     });
 
     socket.on('ajouterActive',function(data){
-      io.emit('ajoutActive',data);
+      socket.broadcast.emit('ajoutActive',data);
     });
 
     socket.on('test',function(){
@@ -54,12 +55,12 @@ io.on('connection',function(socket){
 });
 
 
-setInterval(createWeapon,10000);
+//setInterval(createWeapon,10000);
 
 
 function createWeapon(){
   var arme={id:server.lastArmeID++,
-    spriteName:"sword",
+    spriteName:"kalash",
     sprite:undefined,
     owner:undefined
   };

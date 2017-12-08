@@ -18,8 +18,8 @@ Client.socket.on('allplayers',function(data){
     Client.socket.on('remove',function(id){
         playState.removePlayer(id);
     });
-    Client.socket.on('move',function(data){
-        playState.movePlayer(data);
+    Client.socket.on('move',function(playerSocket,fire){
+        playState.movePlayer(playerSocket,fire);
     });
 });
 
@@ -44,8 +44,8 @@ Client.socket.on('supprArme',function(idWeapon){
   playState.supprArme(idWeapon);
 });
 
-Client.sendClick = function(x,y){
-  Client.socket.emit('click',{x:x,y:y});
+Client.sendClick = function(x,y,fire){
+  Client.socket.emit('click',{x:x,y:y,fire:fire});
 };
 
 Client.socket.on('spawnArme',function(x,y,arme){
