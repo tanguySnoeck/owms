@@ -12,5 +12,4 @@ deploy_job:
     - gem install dpl 
     - dpl --skip_cleanup --provider=heroku --app=$HEROKU_APP_NAME --api-key=$HEROKU_API_KEY
     only:
-    - master
-    - multi
+    - menuEtFin
