@@ -33,21 +33,26 @@ io.on('connection', function(socket) {
       socket.on('newplayer', function() {
         socket.player = {
             id: server.lastPlayderID++,
-            x: randomInt(100, 400),
-            y: randomInt(100, 400)
+            sprite:undefined,
+            activeWeapon:undefined,
+            activeWeaponSprite:undefined
         };
         socket.emit('allplayers', getAllPlayers());
         socket.broadcast.emit('newplayer', socket.player);
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         socket.on('click', function(data) {
             //console.log('click to ' + data.x + ', ' + data.y);
 =======
         socket.on('click',function(data){
 >>>>>>> multi
+=======
+        socket.on('click',function(data){
+>>>>>>> origin/multi
             socket.player.x = data.x;
             socket.player.y = data.y;
-            socket.broadcast.emit('move', socket.player);
+            socket.broadcast.emit('move',socket.player,data.fire);
         });
 
         socket.on('disconnect', function() {
@@ -56,12 +61,16 @@ io.on('connection', function(socket) {
     });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/multi
     socket.on('addUser', function(data){
       addUser(data);
       socket.broadcast.emit('playerConnected', data.userName + data.password);
     });
 
     socket.on('test', function() {
+<<<<<<< HEAD
 =======
     socket.on('supprArme',function(data){
       io.emit('supprArme',data.id);
@@ -69,6 +78,8 @@ io.on('connection', function(socket) {
 
     socket.on('test',function(){
 >>>>>>> multi
+=======
+>>>>>>> origin/multi
         console.log('test received');
     });
     socket.on('finish',function(data){
@@ -77,6 +88,9 @@ io.on('connection', function(socket) {
 });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/multi
 function addUser(data){
   MongoClient.connect(url, function(err, db){
     if(err)throw err;
@@ -88,6 +102,7 @@ function addUser(data){
     //waiting.addPlayer(data);
   });
 }
+<<<<<<< HEAD
 =======
 setInterval(createWeapon,8000);
 
@@ -103,6 +118,8 @@ function createWeapon(){
 
 
 >>>>>>> multi
+=======
+>>>>>>> origin/multi
 
 function getAllPlayers() {
     var players = [];

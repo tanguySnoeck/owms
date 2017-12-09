@@ -19,6 +19,6 @@ Boot.prototype = {
     game.physics.arcade.checkCollision.down = false;
 
     game.state.start('Play');
-    console.log("bootState ! ")
+    console.log("bootState ! ");
   }
 };
