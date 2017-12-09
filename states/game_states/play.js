@@ -5,7 +5,13 @@ var booleenBloque = false;
 var booleenFin = false;
 var playerMap = {};
 var hitTraversePlatform;
-var compteur =0;
+var activeWeapon;
+var kalashPlayer;
+var fire;
+var kalashSprite;
+var y;
+var myBullets;
+var ennemyBullets;
 var Play = function(){};
 
 var Play = {
@@ -191,10 +197,10 @@ var Play = {
     portalLeft.frame=1;
     portalRight = game.add.sprite(5949,615,'portal');
     portalRight.frame=1;
-    console.log("portal" +portalLeft);
+
 
     trapKey = game.input.keyboard.addKey(Phaser.KeyCode.A);
-    console.log(""+trapKey);
+
 
     timer = game.time.create(false);
     timer.add(4000,stopPlayer,this);
@@ -237,14 +243,31 @@ var Play = {
   },
 
   update: function(){
+     //pas sur
+     /*game.physics.arcade.collide(kalash, platforms);
+     game.physics.arcade.collide(player, spritek, pickUpItem, null, this);*/
+
+
+    //console.log(y++);
     var hitPlatform = game.physics.arcade.collide(player, platforms);
     var hitHidePlatform;
     for(var pl in playerMap){
       var player2=playerMap[pl];
       player2.body.velocity.x=0;
 
-      //hitHidePlatform = game.physics.arcade.collide(player2,hidePlatforms);
-      //hitTraversePlatform = game.physics.arcade.overlap(player2,traversePlatforms);
+      if(player2.id!==player.id){
+        game.physics.arcade.overlap(myBullets,player2,playerTouched);
+      }
+
+        //hitHidePlatform = game.physics.arcade.collide(player2,hidePlatforms);
+    	//hitTraversePlatform = game.physics.arcade.overlap(player2,traversePlatforms);
+      if(ennemyBullets!==undefined){
+      for(var bullets in ennemyBullets.children){
+          if(ennemyBullets.owner!==player2.id){
+            game.physics.arcade.overlap(ennemyBullets.children[bullets],player2,ennemyTouched);
+          }
+      }
+    }
 
       game.physics.arcade.collide(player2,platforms);
       game.physics.arcade.collide(player2, sword, pickUpItem, null, this);
@@ -272,13 +295,59 @@ var Play = {
         if(game.input.activePointer.isDown){
           isPickedUp = null;
         }
-        cursors = this.input.keyboard.createCursorKeys();
-        fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
-        if (fireButton.isDown)
-        {
-          kalash.fire();
-        }
-      }
+      }*/
+
+
+  }
+  if(hitPlatform && (player.position.x <20||player.position.x>5960)&& player.position.y==638){
+    Client.finish(player.id);
+  }
+
+
+	if(player !== undefined){
+		player.body.velocity.x=0;
+
+    if(cursors.left.isDown)
+		{
+			player.body.velocity.x=-300;
+    	player.animations.play('left');
+      kalashPlayer.fireAngle = 180;
+      kalashSprite.frame = 0;
+      kalashSprite.alignIn(player, Phaser.RIGHT_CENTER);
+		}else if (cursors.right.isDown) {
+			player.body.velocity.x=300;
+			player.animations.play('right');
+       kalashPlayer.fireAngle = 0;
+       kalashSprite.frame = 1;
+       kalashSprite.alignIn(player, Phaser.LEFT_CENTER);
+		}else {
+			player.animations.stop();
+			player.frame=4;
+      kalashSprite.alignIn(player, Phaser.CENTER);
+		}
+		 // saut de 130 y.
+		 if(hitTraversePlatform){
+			if(cursors.down.isDown && player.body.touching.down){
+
+			}else{
+					game.physics.arcade.collide(player,traversePlatforms);
+				}
+		}
+
+		if(cursors.up.isDown && player.body.touching.down && (hitPlatform /*|| hitHidePlatform||hitTraversePlatform*/)){
+			player.body.velocity.y=-1000;
+		}
+		if(cursors.down.isDown && !player.body.touching.down)
+		{
+			player.body.velocity.y=1000;
+		}
+
+    var  fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
+    if (fireButton.isDown) {
+        kalashPlayer.fire();
+        fire=true;
+    }else{
+        fire=false;
     }
     //game.physics.arcade.collide(sword, platforms, collisionItemPlatform(sword), null, this);
 
@@ -311,21 +380,30 @@ if(hitPlatform && (player.position.x <20||player.position.x>5960)&& player.posit
   Client.finish(player.id);
 }
 
-if(player !== undefined /*&& !booleenBloque*/){
-  player.body.velocity.x=0;
+  addNewPlayer : function(data){
+    var id=data.id;
+    var sprite= game.add.sprite(30,500,'dude');
+    game.physics.arcade.enable(sprite);
+    sprite.body.bounce.y=0;
+    sprite.body.gravity.y=2700;
+    sprite.body.collideWorldBounds=true;
+    sprite.animations.add('left',[0,1,2,3],10,true);
+    sprite.animations.add('right',[5,6,7,8],10,true);
+    sprite.scale.setTo(0.5,1);
 
-  if(cursors.left.isDown)
-  {
-    player.body.velocity.x=-300;
-    kalash.fireAngle = 180;
-    player.animations.play('left');
-    spritek.frame = 0;
-    spritek.alignIn(player, Phaser.RIGHT_CENTER);
+    sprite.body.collideWorldBounds=true;
+    sprite.checkWorldBounds = true;
+    sprite.events.onOutOfBounds.add(resetPlayer,sprite);
+    sprite.id=data.id;
+    data.sprite=sprite;
 
-  }else if (cursors.right.isDown) {
-    player.body.velocity.x=300;
-    kalash.fireAngle = 0;
-    player.animations.play('right');
+
+    kalash = game.add.weapon(1000, 'bullet');
+    kalash.bulletKillType = Phaser.Weapon.KILL_DISTANCE;
+    kalash.bulletSpeed = 1000;
+    kalash.bulletKillDistance=500;
+    kalash.fireRate = 150;
+    var spritek = game.add.sprite(100, 500, 'kalash');
     spritek.frame = 1;
     spritek.alignIn(player, Phaser.LEFT_CENTER);
   }else {
@@ -336,8 +414,36 @@ if(player !== undefined /*&& !booleenBloque*/){
   if(hitTraversePlatform){
     if(cursors.down.isDown && player.body.touching.down){
 
+
+    game.physics.arcade.enable(spritek);
+    spritek.inputEnabled = true;
+    spritek.scale.setTo(0.25, 0.25);
+    spritek.anchor.setTo(0.5,0.3);
+    kalash.trackSprite(spritek, 14, 0);
+
+    data.activeWeapon=kalash;
+    data.activeWeaponSprite=spritek;
+
+    playerMap[id]=data;
+    if(player===undefined){
+      playerData=playerMap[id];
+      player=playerMap[id].sprite;
+      game.camera.follow(player,Phaser.Camera.FOLLOW_LOCKON);
+      myBullets=kalash.bullets;
     }else{
-      game.physics.arcade.collide(player,traversePlatforms);
+      if(ennemyBullets===undefined){
+        kalash.bullets.owner=data.id;
+        ennemyBullets=kalash.bullets;
+      }else{
+        ennemyBullets.add(kalash.bullets);
+      }
+    }
+
+
+
+    if(kalashPlayer===undefined){
+      kalashPlayer=kalash;
+      kalashSprite=spritek;
     }
   }
 
@@ -383,10 +489,77 @@ addNewPlayer : function(id,x,y){
   }
 },
 
-movePlayer : function(movedPlayer){
+  movePlayer : function(movedPlayer,isFired){
+
+	var player2=playerMap[movedPlayer.id].sprite;
+  var player2KalashSprite = playerMap[movedPlayer.id].activeWeaponSprite;
+  var player2Kalash=playerMap[movedPlayer.id].activeWeapon;
+
+	var deplacementH=player2.position.x-movedPlayer.x;
+	var deplacementV=player2.position.y-movedPlayer.y;
+
+	if(deplacementV>0){
+		player2.body.velocity.y=10;
+		player2.position.y=movedPlayer.y;
+	}else if(deplacementV<0){
+		player2.body.velocity.y=-10;
+		player2.position.y=movedPlayer.y;
+	}
+
+	if(deplacementH>0){
+		player2.animations.play('left');
+		player2.body.velocity.x=deplacementH;
+		player2.position.x=movedPlayer.x;
+    player2Kalash.fireAngle = 180;
+    player2KalashSprite.frame = 0;
+    player2KalashSprite.alignIn(player2, Phaser.RIGHT_CENTER);
+	}else if(deplacementH<0){
+		player2.animations.play('right');
+		player2.body.velocity.x=deplacementH;
+		player2.position.x=movedPlayer.x;
+    player2Kalash.fireAngle = 0;
+    player2KalashSprite.frame = 1;
+    player2KalashSprite.alignIn(player2, Phaser.LEFT_CENTER);
+	}else{
+		player2.animations.stop();
+		player2.body.velocity.x=0;
+		player2.frame=4;
+    player2KalashSprite.alignIn(player2, Phaser.CENTER);
+	}
+
+    if(isFired){
+      player2Kalash.fire();
+    }
 
 
-  var player2=playerMap[movedPlayer.id];
+  removePlayer : function(id){
+      if(playerMap[id]!==undefined){
+              playerMap[id].sprite.destroy();
+              playerMap[id].activeWeaponSprite.destroy();
+              delete playerMap[id];
+        }
+    },
+
+    fin : function(){
+      portalLeft.frame=0;
+      portalRight.frame=0;
+      timerFin = game.time.create(false);
+      timerFin.add(2000,function(){
+        game.state.start('GameOver');
+      },this);
+      player.animations.stop();
+      timerFin.start();
+      //booleenFin=true;
+    },
+
+
+  ajoutActive:  function(idPlayer,idItem){
+    var it=weapons[idItem];
+    var player2=playerMap[idPlayer];
+
+    it.owner=player2;
+    player2.activeWeapon=it;
+  },
 
   var deplacementH=player2.position.x-movedPlayer.x;
   var deplacementV=player2.position.y-movedPlayer.y;
@@ -415,21 +588,18 @@ movePlayer : function(movedPlayer){
   }
 },
 
-removePlayer : function(id){
-  playerMap[id].destroy();
-  delete playerMap[id];
-},
-fin : function(){
-  console.log("dans fin play");
-  portalLeft.frame=0;
-  portalRight.frame=0;
-  timerFin = game.time.create(false);
-  timerFin.add(2000,function(){
-    game.state.start('GameOver');
-  },this);
-  player.animations.stop();
-  timerFin.start();
-  //booleenFin=true;
+function playerTouched(playerToucher,bullet){
+  console.log(playerToucher);
+  bullet.kill();
+}
+
+function ennemyTouched(bullet,ennemyToucher){
+  console.log(ennemyToucher);
+  bullet.kill();
+}
+
+function resetKalashPostion(playerData){
+  playerData.activeWeaponSprite.psoition=playerData.sprite.position;
 }
 
 };
@@ -446,12 +616,16 @@ function collisionItemPlatform(item){
 function getCoordinates (x,y){
   Client.sendClick(x,y);
 }
-function killPlayer(){
-  player.kill();
-  //scoreText.text = "You died, loser";
+
+function killWeapon(weapon){
+  if(weapon.sprite!==undefined){
+    weapon.sprite.kill();
+    delete weapons[weapon.id];
+  }
 }
-function resetPlayer(){
-  player.reset(32,500);
+
+function resetPlayer(playerReset){
+  playerReset.reset(32,500);
 }
 
 function lanceTrap(trap){
@@ -466,7 +640,6 @@ function lanceTrap(trap){
 }
 function stopPlayer(){
   booleenBloque=false;
-  console.log("timer fini");
 }
 function getCoord(){
   getCoordinates(player.position.x,player.position.y)
