@@ -11,6 +11,8 @@ var kalashPlayer;
 var fire;
 var kalashSprite;
 var y;
+var myBullets;
+var ennemyBullets;
 var Play = function(){};
 
 var Play = {
@@ -179,10 +181,10 @@ var Play = {
     portalLeft.frame=1;
     portalRight = game.add.sprite(5949,615,'portal');
     portalRight.frame=1;
-    console.log("portal" +portalLeft);
+
 
     trapKey = game.input.keyboard.addKey(Phaser.KeyCode.A);
-    console.log(""+trapKey);
+
 
     timer = game.time.create(false);
     timer.add(4000,stopPlayer,this);
@@ -209,7 +211,8 @@ var Play = {
      /*game.physics.arcade.collide(kalash, platforms);
      game.physics.arcade.collide(player, spritek, pickUpItem, null, this);*/
 
-    console.log(y++);
+
+    //console.log(y++);
     var hitPlatform = game.physics.arcade.collide(player, platforms);
     var hitHidePlatform;
   	for(var pl in playerMap){
@@ -217,8 +220,24 @@ var Play = {
   		var player2=playerMap[pl].sprite;
   		player2.body.velocity.x=0;
 
+      if(player2.id!==player.id){
+        game.physics.arcade.overlap(myBullets,player2,playerTouched);
+      }
+
         //hitHidePlatform = game.physics.arcade.collide(player2,hidePlatforms);
     	//hitTraversePlatform = game.physics.arcade.overlap(player2,traversePlatforms);
+      if(ennemyBullets!==undefined){
+      for(var bullets in ennemyBullets.children){
+          function cbWeapon(){
+            console.log("incbWeapon");
+            playerTouched(player2,ennemyBullets.children[bullets]);
+          }
+
+          if(bullets!==0){
+            game.physics.arcade.overlap(ennemyBullets.children[bullets],player2,cbWeapon);
+          }
+      }
+    }
 
     	game.physics.arcade.collide(player2,platforms);
 
@@ -310,7 +329,6 @@ var Play = {
 
     var  fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     if (fireButton.isDown) {
-        console.log(kalashPlayer);
         kalashPlayer.fire();
         fire=true;
     }else{
@@ -349,8 +367,7 @@ var Play = {
 
     sprite.body.collideWorldBounds=true;
     sprite.checkWorldBounds = true;
-    sprite.events.onOutOfBounds.add(killPlayer,this);
-    sprite.events.onOutOfBounds.add(resetPlayer,this);
+    sprite.events.onOutOfBounds.add(resetPlayer,sprite);
     sprite.id=data.id;
     data.sprite=sprite;
 
@@ -378,7 +395,17 @@ var Play = {
       playerData=playerMap[id];
       player=playerMap[id].sprite;
       game.camera.follow(player,Phaser.Camera.FOLLOW_LOCKON);
+      myBullets=kalash.bullets;
+    }else{
+      if(ennemyBullets===undefined){
+        ennemyBullets=kalash.bullets;
+      }else{
+        ennemyBullets.add(kalash.bullets);
+      }
     }
+
+
+
     if(kalashPlayer===undefined){
       kalashPlayer=kalash;
       kalashSprite=spritek;
@@ -420,7 +447,6 @@ var Play = {
 	}
 
 	if(deplacementH>0){
-    console.log("left");
 		player2.animations.play('left');
 		player2.body.velocity.x=deplacementH;
 		player2.position.x=movedPlayer.x;
@@ -428,7 +454,6 @@ var Play = {
     player2KalashSprite.frame = 0;
     player2KalashSprite.alignIn(player2, Phaser.RIGHT_CENTER);
 	}else if(deplacementH<0){
-    console.log("right");
 		player2.animations.play('right');
 		player2.body.velocity.x=deplacementH;
 		player2.position.x=movedPlayer.x;
@@ -457,7 +482,6 @@ var Play = {
     },
 
     fin : function(){
-      console.log("dans fin play");
       portalLeft.frame=0;
       portalRight.frame=0;
       timerFin = game.time.create(false);
@@ -496,6 +520,11 @@ var Play = {
 
 };
 
+function playerTouched(playerToucher,bullet){
+  console.log(playerToucher);
+  bullet.kill();
+}
+
 function resetKalashPostion(playerData){
   playerData.activeWeaponSprite.psoition=playerData.sprite.position;
 }
@@ -527,9 +556,6 @@ function collisionItemPlatform(item){
 function getCoordinates (x,y,fire){
     Client.sendClick(x,y,fire);
 }
-function killPlayer(){
-	player.kill();
-}
 
 function killWeapon(weapon){
   if(weapon.sprite!==undefined){
@@ -538,8 +564,8 @@ function killWeapon(weapon){
   }
 }
 
-function resetPlayer(){
-	player.reset(32,500);
+function resetPlayer(playerReset){
+  playerReset.reset(32,500);
 }
 function lanceTrap(trap){
   trap = game.add.sprite(player.position.x+33,player.position.y,'trap');
@@ -553,7 +579,6 @@ function lanceTrap(trap){
 }
 function stopPlayer(){
   booleenBloque=false;
-  console.log("timer fini");
 }
 function getCoord(){
   getCoordinates(player.position.x,player.position.y);
