@@ -1,17 +1,22 @@
 {
-  "name": "projet",
+  "name": "owms",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
-  "dependencies": {
-    "express": "^4.16.2",
-    "phaser-ce": "^2.9.1",
-    "socket.io": "^2.0.4"
-  },
-  "devDependencies": {},
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "iconv-lite": "^0.4.19",
+    "socket.io": "^2.0.4",
+    "express":"^4.16.2",
+    "mongodb":"^2.2.33",
+    "phaser-ce":"^2.9.1"
+  },
+  "devDependencies": {
+    "@orange-games/phaser-input": "^2.0.5"
+  }
 }
