@@ -13,14 +13,8 @@
     "express": "^4.16.2",
     "iconv-lite": "^0.4.19",
     "socket.io": "^2.0.4",
-<<<<<<< HEAD
     "mongodb": "^2.2.33",
     "phaser-ce": "^2.9.1"
-=======
-    "express":"^4.16.2",
-    "mongodb":"^2.2.33",
-    "phaser-ce":"^2.9.1"
->>>>>>> origin/multi
   },
   "devDependencies": {
     "@orange-games/phaser-input": "^2.0.5",

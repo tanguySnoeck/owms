@@ -23,7 +23,6 @@ app.get('/', function(req, res) {
 });
 
 server.lastPlayderID = 0;
-server.lastArmeID=0;
 
 server.listen(process.env.PORT || 8081, function() {
     console.log('Listening on ' + server.address().port);
@@ -33,26 +32,17 @@ io.on('connection', function(socket) {
       socket.on('newplayer', function() {
         socket.player = {
             id: server.lastPlayderID++,
-            sprite:undefined,
-            activeWeapon:undefined,
-            activeWeaponSprite:undefined
+            x: randomInt(100, 400),
+            y: randomInt(100, 400)
         };
         socket.emit('allplayers', getAllPlayers());
         socket.broadcast.emit('newplayer', socket.player);
 
-<<<<<<< HEAD
-<<<<<<< HEAD
         socket.on('click', function(data) {
             //console.log('click to ' + data.x + ', ' + data.y);
-=======
-        socket.on('click',function(data){
->>>>>>> multi
-=======
-        socket.on('click',function(data){
->>>>>>> origin/multi
             socket.player.x = data.x;
             socket.player.y = data.y;
-            socket.broadcast.emit('move',socket.player,data.fire);
+            socket.broadcast.emit('move', socket.player);
         });
 
         socket.on('disconnect', function() {
@@ -60,26 +50,12 @@ io.on('connection', function(socket) {
         });
     });
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> origin/multi
     socket.on('addUser', function(data){
       addUser(data);
       socket.broadcast.emit('playerConnected', data.userName + data.password);
     });
 
     socket.on('test', function() {
-<<<<<<< HEAD
-=======
-    socket.on('supprArme',function(data){
-      io.emit('supprArme',data.id);
-    });
-
-    socket.on('test',function(){
->>>>>>> multi
-=======
->>>>>>> origin/multi
         console.log('test received');
     });
     socket.on('finish',function(data){
@@ -87,10 +63,6 @@ io.on('connection', function(socket) {
     });
 });
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> origin/multi
 function addUser(data){
   MongoClient.connect(url, function(err, db){
     if(err)throw err;
@@ -102,24 +74,6 @@ function addUser(data){
     //waiting.addPlayer(data);
   });
 }
-<<<<<<< HEAD
-=======
-setInterval(createWeapon,8000);
-
-
-function createWeapon(){
-  var arme={id:server.lastArmeID++,
-    spriteName:"sword",
-    sprite:undefined,
-    owner:undefined
-  };
-  io.emit('spawnArme',randomInt(350,800),randomInt(850,851),arme);
-}
-
-
->>>>>>> multi
-=======
->>>>>>> origin/multi
 
 function getAllPlayers() {
     var players = [];
