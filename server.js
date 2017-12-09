@@ -1,69 +1,86 @@
 var express = require('express');
 var app = express();
 var server = require('http').Server(app);
+var path = require('path');
 var io = require('socket.io').listen(server);
-var MongoClient = require("mongodb").MongoClient;
-var url = 'mongodb://tanguy:owms@ds151544.mlab.com:51544/owms';
+//var MongoClient = require("mongodb").MongoClient;
+var url = "mongodb://tanguy:owms@ds151544.mlab.com:51544/owms";
 
-MongoClient.connect(url, function(err, db){
-  if(err)throw err;
-  console.log("Connection established !");
-  db.close();
-});
+console.log('bjr');
+var localPath = path.join(__dirname, '.');
+app.use(express.static(localPath));
 
+app.use(express.static('.'));
+/*
+app.use('/css', express.static(__dirname + '/css'));
+app.use('/js', express.static(__dirname + '/js'));
+app.use('/assets', express.static(__dirname + '/assets'));
+app.use('/lib', express.static(__dirname + '/lib'));
+*/
 
-app.use('/css',express.static(__dirname + '/css'));
-app.use('/js',express.static(__dirname + '/js'));
-app.use('/assets',express.static(__dirname + '/assets'));
-
-app.get('/',function(req,res){
-    res.sendFile(__dirname+'/base.html');
+app.get('/', function(req, res) {
+    res.sendFile(__dirname + '/index.html');
 });
 
 server.lastPlayderID = 0;
 
-server.listen(process.env.PORT || 8081,function(){
-    console.log('Listening on '+server.address().port);
+server.listen(process.env.PORT || 8081, function() {
+    console.log('Listening on ' + server.address().port);
 });
 
-io.on('connection',function(socket){
-
-    socket.on('newplayer',function(){
+io.on('connection', function(socket) {
+      socket.on('newplayer', function() {
         socket.player = {
             id: server.lastPlayderID++,
-            x: 32,
-            y: 500
+            x: randomInt(100, 400),
+            y: randomInt(100, 400)
         };
-        socket.emit('allplayers',getAllPlayers());
-        socket.broadcast.emit('newplayer',socket.player);
+        socket.emit('allplayers', getAllPlayers());
+        socket.broadcast.emit('newplayer', socket.player);
 
-        socket.on('click',function(data){
-            console.log('click to '+data.x+', '+data.y);
+        socket.on('click', function(data) {
+            console.log('click to ' + data.x + ', ' + data.y);
             socket.player.x = data.x;
             socket.player.y = data.y;
-            socket.broadcast.emit('move',socket.player);
+              socket.broadcast.emit('move', socket.player);
         });
 
-        socket.on('disconnect',function(){
-            io.emit('remove',socket.player.id);
+        socket.on('disconnect', function() {
+            io.emit('remove', socket.player.id);
         });
     });
 
-    socket.on('test',function(){
+    socket.on('addUser', function(data){
+      addUserDb(data.userName);
+      socket.broadcast.emit('playerConnected', data.userName);
+    });
+
+    socket.on('test', function() {
         console.log('test received');
     });
 });
 
+function addUserDb(data){
+/*  MongoClient.connect(url, function(err, db){
+    if(err)throw err;
+    /*db.collection("Users").insert({name : data.userName, password : data.password}, function(err, data){
+      if(err) throw err;
+      console.log("User added !");
+    });
+    console.log("User added !");
+    //waiting.addPlayer(data);
+  });*/
+}
 
-function getAllPlayers(){
+function getAllPlayers() {
     var players = [];
-    Object.keys(io.sockets.connected).forEach(function(socketID){
+    Object.keys(io.sockets.connected).forEach(function(socketID) {
         var player = io.sockets.connected[socketID].player;
-        if(player) players.push(player);
+        if (player) players.push(player);
     });
     return players;
 }
 
-function randomInt (low, high) {
+function randomInt(low, high) {
     return Math.floor(Math.random() * (high - low) + low);
 }
