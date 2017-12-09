@@ -12,9 +12,11 @@
   "dependencies": {
     "express": "^4.16.2",
     "iconv-lite": "^0.4.19",
+    "socket.io": "^2.0.4",
+    "express": "^4.16.2",
     "mongodb": "^2.2.33",
-    "phaser-ce": "^2.9.1",
-    "socket.io": "^2.0.4"
+    "phaser-ce": "^2.9.1"
+
   },
   "devDependencies": {
     "@orange-games/phaser-input": "^2.0.5"
