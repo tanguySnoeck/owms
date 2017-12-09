@@ -228,13 +228,8 @@ var Play = {
     	//hitTraversePlatform = game.physics.arcade.overlap(player2,traversePlatforms);
       if(ennemyBullets!==undefined){
       for(var bullets in ennemyBullets.children){
-          function cbWeapon(){
-            console.log("incbWeapon");
-            playerTouched(player2,ennemyBullets.children[bullets]);
-          }
-
-          if(bullets!==0){
-            game.physics.arcade.overlap(ennemyBullets.children[bullets],player2,cbWeapon);
+          if(ennemyBullets.owner!==player2.id){
+            game.physics.arcade.overlap(ennemyBullets.children[bullets],player2,ennemyTouched);
           }
       }
     }
@@ -398,6 +393,7 @@ var Play = {
       myBullets=kalash.bullets;
     }else{
       if(ennemyBullets===undefined){
+        kalash.bullets.owner=data.id;
         ennemyBullets=kalash.bullets;
       }else{
         ennemyBullets.add(kalash.bullets);
@@ -522,6 +518,11 @@ var Play = {
 
 function playerTouched(playerToucher,bullet){
   console.log(playerToucher);
+  bullet.kill();
+}
+
+function ennemyTouched(bullet,ennemyToucher){
+  console.log(ennemyToucher);
   bullet.kill();
 }
 
