@@ -9,11 +9,11 @@ Splash.prototype = {
         game.load.script('mixins', 'lib/mixins.js');
         game.load.script('WebFont', 'vendor/webfontloader.js');
         //Menu_states
-        game.load.script('gamemenu', 'states/menu_states/GameMenu.js');
+        game.load.script('gamemenu', 'states/menu_states/gamemenu.js');
         game.load.script('game', 'states/menu_states/Game.js');
-        game.load.script('gameover', 'states/menu_states/GameOver.js');
-        game.load.script('credits', 'states/menu_states/Credits.js');
-        game.load.script('options', 'states/menu_states/Options.js');
+        game.load.script('gameover', 'states/menu_states/gameover.js');
+        game.load.script('credits', 'states/menu_states/credits.js');
+        game.load.script('options', 'states/menu_states/options.js');
         game.load.script('select', 'states/menu_states/Select.js');
         game.load.script('waiting', 'states/menu_states/waiting.js');
         /*game.load.script('stats', 'states/menu_states/Stats.js');
