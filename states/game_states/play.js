@@ -227,11 +227,10 @@ var Play = {
         //hitHidePlatform = game.physics.arcade.collide(player2,hidePlatforms);
     	//hitTraversePlatform = game.physics.arcade.overlap(player2,traversePlatforms);
       if(ennemyBullets!==undefined){
-      for(var bullets in ennemyBullets.children){
           if(ennemyBullets.owner!==player2.id){
-            game.physics.arcade.overlap(ennemyBullets.children[bullets],player2,ennemyTouched);
+            game.physics.arcade.overlap(ennemyBullets,player2,ennemyTouched);
           }
-      }
+
     }
 
     	game.physics.arcade.collide(player2,platforms);
@@ -362,12 +361,12 @@ var Play = {
 
     sprite.body.collideWorldBounds=true;
     sprite.checkWorldBounds = true;
-    sprite.events.onOutOfBounds.add(resetPlayer,sprite);
+    sprite.events.onOutOfBounds.add(resetOnExecute,data);
     sprite.id=data.id;
     data.sprite=sprite;
 
 
-    kalash = game.add.weapon(1000, 'bullet');
+    kalash = game.add.weapon(100, 'bullet');
     kalash.bulletKillType = Phaser.Weapon.KILL_DISTANCE;
     kalash.bulletSpeed = 1000;
     kalash.bulletKillDistance=500;
@@ -384,6 +383,7 @@ var Play = {
 
     data.activeWeapon=kalash;
     data.activeWeaponSprite=spritek;
+    data.hp=10;
 
     playerMap[id]=data;
     if(player===undefined){
@@ -517,17 +517,29 @@ var Play = {
 };
 
 function playerTouched(playerToucher,bullet){
-  console.log(playerToucher);
+  console.log("playerToucher");
+  playerMap[playerToucher.id].hp--;
+  if(playerMap[playerToucher.id].hp===0){
+    killPlayer(playerToucher.id);
+  }
   bullet.kill();
 }
 
-function ennemyTouched(bullet,ennemyToucher){
-  console.log(ennemyToucher);
+function ennemyTouched(ennemyToucher,bullet){
+  console.log("ennemyToucher");
+  playerMap[ennemyToucher.id].hp--;
+  if(playerMap[ennemyToucher.id].hp===0){
+    killPlayer(ennemyToucher.id);
+  }
   bullet.kill();
 }
 
 function resetKalashPostion(playerData){
   playerData.activeWeaponSprite.psoition=playerData.sprite.position;
+}
+
+function killPlayer(idPlayer){
+    resetPlayer(playerMap[idPlayer]);
 }
 
 
@@ -566,6 +578,12 @@ function killWeapon(weapon){
 }
 
 function resetPlayer(playerReset){
+  console.log(playerReset);
+  playerReset.hp=10;
+  playerReset.sprite.reset(32,500);
+}
+
+function resetOnExecute(playerReset){
   playerReset.reset(32,500);
 }
 function lanceTrap(trap){
