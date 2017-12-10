@@ -1,6 +1,7 @@
 
 var Client = {};
 Client.socket = io.connect();
+Client.socket.emit('menuConnexion');
 
 Client.askNewPlayer = function(){
     Client.socket.emit('newplayer');

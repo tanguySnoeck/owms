@@ -7,6 +7,7 @@ var MongoClient = require("mongodb").MongoClient;
 var url = "mongodb://tanguy:owms@ds151544.mlab.com:51544/owms";
 //pour déterminer portail joueur
 var cpt = 0;
+var tabJoueur={};
 
 console.log('bjr');
 var localPath = path.join(__dirname, '.');
@@ -34,13 +35,23 @@ server.listen(process.env.PORT || 8081, function() {
 io.on('connection', function(socket) {
       socket.on('newplayer', function() {
         console.log("CPT " + cpt);
+        var newId;
+        for(var i=0;i<server.lastPlayderID;i++){
+          if(tabJoueur[i]!==undefined &&  tabJoueur[i].inGame===false){
+            tabJoueur[i].inGame=true;
+            newId=i;
+            break;
+          }
+        }
+
         socket.player = {
-            id: server.lastPlayderID++,
+            id: newId,
             sprite:undefined,
             activeWeapon:undefined,
             activeWeaponSprite:undefined,
             portail : cpt%2
         };
+        console.log(tabJoueur);
         cpt++;
         socket.emit('allplayers', getAllPlayers());
         socket.broadcast.emit('newplayer', socket.player);
@@ -53,6 +64,7 @@ io.on('connection', function(socket) {
 
         socket.on('disconnect', function() {
             io.emit('remove', socket.player.id);
+            delete tabJoueur[socket.player.id];
         });
     });
 
@@ -66,6 +78,11 @@ io.on('connection', function(socket) {
     });
     socket.on('finish',function(data){
       io.emit('winner',data);
+    });
+    //Quand client est créer, on appelle cete fonction.
+    socket.on('menuConnexion',function(){
+      tabJoueur[server.lastPlayderID]={/*login:login,*/inGame:false};
+      server.lastPlayderID++;
     });
 });
 
