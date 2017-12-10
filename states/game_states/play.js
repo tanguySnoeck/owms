@@ -600,7 +600,7 @@ function killWeapon(weapon){
 function resetPlayer(playerReset){
   console.log(playerReset);
   playerReset.hp=10;
-  playerReset.sprite.reset(32,500);
+  playerReset.sprite.reset(x,500);
 }
 
 function resetOnExecute(playerReset){
