@@ -395,7 +395,7 @@ var Play = {
 
     data.activeWeapon=kalash;
     data.activeWeaponSprite=spritek;
-    data.hp=10;
+    data.hp=3;
 
     playerMap[id]=data;
     if(player===undefined){
