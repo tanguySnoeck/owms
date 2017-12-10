@@ -46,7 +46,7 @@ Splash.prototype = {
         game.load.image('sky', '/assets/images/game_images/bg_futurist.png');
         game.load.image('ground', '/assets/images/game_images/platform.png');
         game.load.image('star', '/assets/images/game_images/star.png');
-        game.load.spritesheet('dude', '/assets/images/game_images/dude.png', 32, 48);
+        game.load.spritesheet('dude', '/assets/images/game_images/logseriesgoku2pmTaille.png', 32, 48);
         game.load.image('sword', 'assets/images/game_images/sword.png');
         game.load.image('portalDown','assets/images/game_images/portaldown.png');
         game.load.spritesheet('portal','/assets/images/game_images/portal.png', 52, 85);

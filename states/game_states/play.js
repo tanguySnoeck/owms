@@ -13,6 +13,8 @@ var kalashSprite;
 var y;
 var myBullets;
 var ennemyBullets;
+var portail;
+var x;
 var Play = function(){};
 
 var Play = {
@@ -278,12 +280,16 @@ var Play = {
 
 
   }
-  if(hitPlatform && (player.position.x <20||player.position.x>5960)&& player.position.y==638){
-    Client.finish(player.id);
+  if(hitPlatform &&player.position.y==638){
+    if(portail && player.position.x <20){
+      Client.finish(player.id);
+    }else if (!portail && player.position.x>5960){
+      Client.finish(player.id);
+    }
   }
 
 
-	if(player !== undefined){
+	if(player !== undefined && !booleenBloque){
 		player.body.velocity.x=0;
 
     if(cursors.left.isDown)
@@ -292,17 +298,17 @@ var Play = {
     	player.animations.play('left');
       kalashPlayer.fireAngle = 180;
       kalashSprite.frame = 0;
-      kalashSprite.alignIn(player, Phaser.RIGHT_CENTER);
+      kalashSprite.alignIn(player, Phaser.RIGHT_CENTER,0,8);
 		}else if (cursors.right.isDown) {
 			player.body.velocity.x=300;
 			player.animations.play('right');
        kalashPlayer.fireAngle = 0;
        kalashSprite.frame = 1;
-       kalashSprite.alignIn(player, Phaser.LEFT_CENTER);
+       kalashSprite.alignIn(player, Phaser.LEFT_CENTER,0,8);
 		}else {
 			player.animations.stop();
 			player.frame=4;
-      kalashSprite.alignIn(player, Phaser.CENTER);
+      kalashSprite.alignIn(player, Phaser.CENTER,0,8);
 		}
 		 // saut de 130 y.
 		 if(hitTraversePlatform){
@@ -350,7 +356,13 @@ var Play = {
 
   addNewPlayer : function(data){
     var id=data.id;
-    var sprite= game.add.sprite(30,500,'dude');
+    var xAdd;
+    if(data.portail>0){
+      xAdd=5920;
+    }else{
+      xAdd=50;
+    }
+    var sprite= game.add.sprite(xAdd,500,'dude');
     game.physics.arcade.enable(sprite);
     sprite.body.bounce.y=0;
     sprite.body.gravity.y=2700;
@@ -387,8 +399,16 @@ var Play = {
 
     playerMap[id]=data;
     if(player===undefined){
+      console.log("Dans condition player undefined de addNewPlayer");
       playerData=playerMap[id];
       player=playerMap[id].sprite;
+      x = player.position.x;
+      console.log("x de if undefined : "+x);
+      if(x >3000){
+        portail=true;
+      }else{
+        portail=false;
+      }
       game.camera.follow(player,Phaser.Camera.FOLLOW_LOCKON);
       myBullets=kalash.bullets;
     }else{
@@ -399,8 +419,6 @@ var Play = {
         ennemyBullets.add(kalash.bullets);
       }
     }
-
-
 
     if(kalashPlayer===undefined){
       kalashPlayer=kalash;
@@ -448,19 +466,19 @@ var Play = {
 		player2.position.x=movedPlayer.x;
     player2Kalash.fireAngle = 180;
     player2KalashSprite.frame = 0;
-    player2KalashSprite.alignIn(player2, Phaser.RIGHT_CENTER);
+    player2KalashSprite.alignIn(player2, Phaser.RIGHT_CENTER,0,8);
 	}else if(deplacementH<0){
 		player2.animations.play('right');
 		player2.body.velocity.x=deplacementH;
 		player2.position.x=movedPlayer.x;
     player2Kalash.fireAngle = 0;
     player2KalashSprite.frame = 1;
-    player2KalashSprite.alignIn(player2, Phaser.LEFT_CENTER);
+    player2KalashSprite.alignIn(player2, Phaser.LEFT_CENTER,0,8);
 	}else{
 		player2.animations.stop();
 		player2.body.velocity.x=0;
 		player2.frame=4;
-    player2KalashSprite.alignIn(player2, Phaser.CENTER);
+    player2KalashSprite.alignIn(player2, Phaser.CENTER,0,8);
 	}
 
     if(isFired){
@@ -480,6 +498,8 @@ var Play = {
     fin : function(){
       portalLeft.frame=0;
       portalRight.frame=0;
+      player.animations.stop();
+      booleenBloque = true;
       timerFin = game.time.create(false);
       timerFin.add(2000,function(){
         game.state.start('GameOver');
@@ -584,7 +604,7 @@ function resetPlayer(playerReset){
 }
 
 function resetOnExecute(playerReset){
-  playerReset.reset(32,500);
+  playerReset.reset(x,500);
 }
 function lanceTrap(trap){
   trap = game.add.sprite(player.position.x+33,player.position.y,'trap');

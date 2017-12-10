@@ -5,6 +5,8 @@ var path = require('path');
 var io = require('socket.io').listen(server);
 var MongoClient = require("mongodb").MongoClient;
 var url = "mongodb://tanguy:owms@ds151544.mlab.com:51544/owms";
+//pour déterminer portail joueur
+var cpt = 0;
 
 console.log('bjr');
 var localPath = path.join(__dirname, '.');
@@ -31,12 +33,15 @@ server.listen(process.env.PORT || 8081, function() {
 
 io.on('connection', function(socket) {
       socket.on('newplayer', function() {
+        console.log("CPT " + cpt);
         socket.player = {
             id: server.lastPlayderID++,
             sprite:undefined,
             activeWeapon:undefined,
-            activeWeaponSprite:undefined
+            activeWeaponSprite:undefined,
+            portail : cpt%2
         };
+        cpt++;
         socket.emit('allplayers', getAllPlayers());
         socket.broadcast.emit('newplayer', socket.player);
 
