@@ -395,7 +395,7 @@ var Play = {
 
     data.activeWeapon=kalash;
     data.activeWeaponSprite=spritek;
-    data.hp=10;
+    data.hp=3;
 
     playerMap[id]=data;
     if(player===undefined){
@@ -600,7 +600,7 @@ function killWeapon(weapon){
 function resetPlayer(playerReset){
   console.log(playerReset);
   playerReset.hp=10;
-  playerReset.sprite.reset(32,500);
+  playerReset.sprite.reset(x,500);
 }
 
 function resetOnExecute(playerReset){
