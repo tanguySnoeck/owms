@@ -13,6 +13,8 @@ var kalashSprite;
 var y;
 var myBullets;
 var ennemyBullets;
+var portail;
+var x;
 var Play = function(){};
 
 var Play = {
@@ -279,12 +281,16 @@ var Play = {
 
 
   }
-  if(hitPlatform && (player.position.x <20||player.position.x>5960)&& player.position.y==638){
-    Client.finish(player.id);
+  if(hitPlatform &&player.position.y==638){
+    if(portail && player.position.x <20){
+      Client.finish(player.id);
+    }else if (!portail && player.position.x>5960){
+      Client.finish(player.id);
+    }
   }
 
 
-	if(player !== undefined){
+	if(player !== undefined && !booleenBloque){
 		player.body.velocity.x=0;
 
     if(cursors.left.isDown)
@@ -351,7 +357,13 @@ var Play = {
 
   addNewPlayer : function(data){
     var id=data.id;
-    var sprite= game.add.sprite(30,500,'dude');
+    var xAdd;
+    if(data.portail>0){
+      xAdd=5920;
+    }else{
+      xAdd=50;
+    }
+    var sprite= game.add.sprite(xAdd,500,'dude');
     game.physics.arcade.enable(sprite);
     sprite.body.bounce.y=0;
     sprite.body.gravity.y=2700;
@@ -387,8 +399,16 @@ var Play = {
 
     playerMap[id]=data;
     if(player===undefined){
+      console.log("Dans condition player undefined de addNewPlayer");
       playerData=playerMap[id];
       player=playerMap[id].sprite;
+      x = player.position.x;
+      console.log("x de if undefined : "+x);
+      if(x >3000){
+        portail=true;
+      }else{
+        portail=false;
+      }
       game.camera.follow(player,Phaser.Camera.FOLLOW_LOCKON);
       myBullets=kalash.bullets;
     }else{
@@ -399,8 +419,6 @@ var Play = {
         ennemyBullets.add(kalash.bullets);
       }
     }
-
-
 
     if(kalashPlayer===undefined){
       kalashPlayer=kalash;
@@ -480,6 +498,8 @@ var Play = {
     fin : function(){
       portalLeft.frame=0;
       portalRight.frame=0;
+      player.animations.stop();
+      booleenBloque = true;
       timerFin = game.time.create(false);
       timerFin.add(2000,function(){
         game.state.start('GameOver');
@@ -566,7 +586,8 @@ function killWeapon(weapon){
 }
 
 function resetPlayer(playerReset){
-  playerReset.reset(32,500);
+  console.log("X de resetPlayer : " + x);
+  playerReset.reset(x,500);
 }
 function lanceTrap(trap){
   trap = game.add.sprite(player.position.x+33,player.position.y,'trap');
