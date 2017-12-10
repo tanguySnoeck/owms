@@ -299,17 +299,17 @@ var Play = {
     	player.animations.play('left');
       kalashPlayer.fireAngle = 180;
       kalashSprite.frame = 0;
-      kalashSprite.alignIn(player, Phaser.RIGHT_CENTER);
+      kalashSprite.alignIn(player, Phaser.RIGHT_CENTER,0,8);
 		}else if (cursors.right.isDown) {
 			player.body.velocity.x=300;
 			player.animations.play('right');
        kalashPlayer.fireAngle = 0;
        kalashSprite.frame = 1;
-       kalashSprite.alignIn(player, Phaser.LEFT_CENTER);
+       kalashSprite.alignIn(player, Phaser.LEFT_CENTER,0,8);
 		}else {
 			player.animations.stop();
 			player.frame=4;
-      kalashSprite.alignIn(player, Phaser.CENTER);
+      kalashSprite.alignIn(player, Phaser.CENTER,0,8);
 		}
 		 // saut de 130 y.
 		 if(hitTraversePlatform){
@@ -466,19 +466,19 @@ var Play = {
 		player2.position.x=movedPlayer.x;
     player2Kalash.fireAngle = 180;
     player2KalashSprite.frame = 0;
-    player2KalashSprite.alignIn(player2, Phaser.RIGHT_CENTER);
+    player2KalashSprite.alignIn(player2, Phaser.RIGHT_CENTER,0,8);
 	}else if(deplacementH<0){
 		player2.animations.play('right');
 		player2.body.velocity.x=deplacementH;
 		player2.position.x=movedPlayer.x;
     player2Kalash.fireAngle = 0;
     player2KalashSprite.frame = 1;
-    player2KalashSprite.alignIn(player2, Phaser.LEFT_CENTER);
+    player2KalashSprite.alignIn(player2, Phaser.LEFT_CENTER,0,8);
 	}else{
 		player2.animations.stop();
 		player2.body.velocity.x=0;
 		player2.frame=4;
-    player2KalashSprite.alignIn(player2, Phaser.CENTER);
+    player2KalashSprite.alignIn(player2, Phaser.CENTER,0,8);
 	}
 
     if(isFired){
