@@ -1,0 +1,15 @@
+image: starefossen/ruby-node
+
+variables:
+    NODE_ENV: "development"
+
+stages:
+    - deploy
+
+deploy_job:
+    stage: deploy
+    script :
+    - gem install dpl
+    - dpl --skip_cleanup --provider=heroku --app=$HEROKU_APP_NAME --api-key=$HEROKU_API_KEY
+    only:
+    - multi

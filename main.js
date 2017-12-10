@@ -4,7 +4,7 @@ var user;
 var testHolder;
 var password;
 
-var game = new Phaser.Game(1250, 500, Phaser.AUTO, 'game'),
+var game = new Phaser.Game(1250, 500, Phaser.CANVAS, 'game'),
     Main = function() {},
     gameOptions = {
         playSound: false,
@@ -26,11 +26,6 @@ Main.prototype = {
         game.load.script('polyfill', 'lib/polyfill.js');
         game.load.script('utils', 'lib/utils.js');
         game.load.script('splash', 'states/Splash.js');
-        
-        game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-      	game.scale.pageAlignVertically = true;
-      	game.scale.pageAlignHorizontally = true;
-      	game.scale.updateLayout( true );
     },
 
     create: function() {

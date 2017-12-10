@@ -3,17 +3,17 @@ var Splash = function() {};
 Splash.prototype = {
 
     loadScripts: function() {
-        game.load.script('client', 'states/client.js')
+        game.load.script('client', 'states/client.js');
         //Lib
         game.load.script('style', 'lib/style.js');
         game.load.script('mixins', 'lib/mixins.js');
         game.load.script('WebFont', 'vendor/webfontloader.js');
         //Menu_states
-        game.load.script('gamemenu', 'states/menu_states/GameMenu.js');
+        game.load.script('gamemenu', 'states/menu_states/gamemenu.js');
         game.load.script('game', 'states/menu_states/Game.js');
-        game.load.script('gameover', 'states/menu_states/GameOver.js');
-        game.load.script('credits', 'states/menu_states/Credits.js');
-        game.load.script('options', 'states/menu_states/Options.js');
+        game.load.script('gameover', 'states/menu_states/gameover.js');
+        game.load.script('credits', 'states/menu_states/credits.js');
+        game.load.script('options', 'states/menu_states/options.js');
         game.load.script('select', 'states/menu_states/Select.js');
         game.load.script('waiting', 'states/menu_states/waiting.js');
         /*game.load.script('stats', 'states/menu_states/Stats.js');
@@ -46,8 +46,11 @@ Splash.prototype = {
         game.load.image('sky', '/assets/images/game_images/bg_futurist.png');
         game.load.image('ground', '/assets/images/game_images/platform.png');
         game.load.image('star', '/assets/images/game_images/star.png');
-        game.load.spritesheet('dude', '/assets/images/game_images/dude.png', 32, 48);
+        game.load.spritesheet('dude', '/assets/images/game_images/logseriesgoku2pmTaille.png', 32, 48);
         game.load.image('sword', 'assets/images/game_images/sword.png');
+        game.load.image('portalDown','assets/images/game_images/portaldown.png');
+        game.load.spritesheet('portal','/assets/images/game_images/portal.png', 52, 85);
+        game.load.spritesheet('trap', '/assets/images/game_images/piege.png', 195, 130);
 		game.load.spritesheet('kalash','/assets/images/game_images/kalash.png',210,60);
 		game.load.image('bullet', '/assets/images/game_images/bullet.png');
     },

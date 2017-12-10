@@ -3,8 +3,11 @@ var app = express();
 var server = require('http').Server(app);
 var path = require('path');
 var io = require('socket.io').listen(server);
-//var MongoClient = require("mongodb").MongoClient;
+var MongoClient = require("mongodb").MongoClient;
 var url = "mongodb://tanguy:owms@ds151544.mlab.com:51544/owms";
+//pour déterminer portail joueur
+var cpt = 0;
+var tabJoueur=[];
 
 console.log('bjr');
 var localPath = path.join(__dirname, '.');
@@ -23,6 +26,7 @@ app.get('/', function(req, res) {
 });
 
 server.lastPlayderID = 0;
+server.lastArmeID=0;
 
 server.listen(process.env.PORT || 8081, function() {
     console.log('Listening on ' + server.address().port);
@@ -30,46 +34,88 @@ server.listen(process.env.PORT || 8081, function() {
 
 io.on('connection', function(socket) {
       socket.on('newplayer', function() {
+        console.log("CPT " + cpt);
+        var newId;
+        for(var i=0;i<server.lastPlayderID;i++){
+          if(tabJoueur[i]!==undefined &&  tabJoueur[i].inGame===false){
+            tabJoueur[i].inGame=true;
+            newId=i;
+            break;
+          }
+        }
+
         socket.player = {
-            id: server.lastPlayderID++,
-            x: randomInt(100, 400),
-            y: randomInt(100, 400)
+            id: newId,
+            sprite:undefined,
+            activeWeapon:undefined,
+            activeWeaponSprite:undefined,
+            portail : cpt%2
         };
+        console.log(tabJoueur);
+        cpt++;
         socket.emit('allplayers', getAllPlayers());
         socket.broadcast.emit('newplayer', socket.player);
 
-        socket.on('click', function(data) {
-            console.log('click to ' + data.x + ', ' + data.y);
+        socket.on('click',function(data){
             socket.player.x = data.x;
             socket.player.y = data.y;
-              socket.broadcast.emit('move', socket.player);
+            socket.broadcast.emit('move',socket.player,data.fire);
         });
 
         socket.on('disconnect', function() {
             io.emit('remove', socket.player.id);
+            console.log("PROUT : " + tabJoueur.length);
+            delete tabJoueur[socket.player.id];
+            console.log("BITE : " + tabJoueur.length);
+            socket.broadcast.emit("playerConnected", tabJoueur);
         });
     });
 
     socket.on('addUser', function(data){
-      addUserDb(data.userName);
-      socket.broadcast.emit('playerConnected', data.userName);
+        console.log("menuConnexion")
+        tabJoueur[server.lastPlayderID]={login:data.userName,inGame:false};
+        console.log("id : " + server.lastPlayderID + "login : " +  tabJoueur[server.lastPlayderID].login);
+        server.lastPlayderID++;
+        checkUserDB(data);
+        socket.emit('playerConnected', tabJoueur); //<- tabJoueur
+        socket.broadcast.emit("playerConnected", tabJoueur);
     });
-
     socket.on('test', function() {
         console.log('test received');
     });
+    socket.on('finish',function(data){
+      io.emit('winner',data);
+    });
+
+    socket.on('menuConnexion',function(){
+
+    });
+    //Quand client est créer, on appelle cete fonction.
+
 });
 
-function addUserDb(data){
-/*  MongoClient.connect(url, function(err, db){
-    if(err)throw err;
-    /*db.collection("Users").insert({name : data.userName, password : data.password}, function(err, data){
-      if(err) throw err;
-      console.log("User added !");
+function checkUserDB(data) {
+    MongoClient.connect(url, function(err, db) {
+        if (err) throw err;
+        var query = { name: data.userName, password: data.password };
+        var res = db.collection("Users").find(query).limit(1).size();
+        console.log(res);
+        if (res == 1) {
+            console.log('User already present in db !');
+        } else {
+            addUserDB(query);
+        }
     });
-    console.log("User added !");
-    //waiting.addPlayer(data);
-  });*/
+}
+
+
+function loginUser(user, pswd){
+  MongoClient.connect(url, function(err, db){
+    if(err)throw err;
+    db.collection("Users").find({name : user, password : pswd}, function(err, data){
+      if(err)throw err;
+    });
+  });
 }
 
 function getAllPlayers() {
