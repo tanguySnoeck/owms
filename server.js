@@ -23,6 +23,7 @@ app.get('/', function(req, res) {
 });
 
 server.lastPlayderID = 0;
+server.lastArmeID=0;
 
 server.listen(process.env.PORT || 8081, function() {
     console.log('Listening on ' + server.address().port);
@@ -32,17 +33,17 @@ io.on('connection', function(socket) {
       socket.on('newplayer', function() {
         socket.player = {
             id: server.lastPlayderID++,
-            x: randomInt(100, 400),
-            y: randomInt(100, 400)
+            sprite:undefined,
+            activeWeapon:undefined,
+            activeWeaponSprite:undefined
         };
         socket.emit('allplayers', getAllPlayers());
         socket.broadcast.emit('newplayer', socket.player);
 
-        socket.on('click', function(data) {
-            //console.log('click to ' + data.x + ', ' + data.y);
+        socket.on('click',function(data){
             socket.player.x = data.x;
             socket.player.y = data.y;
-            socket.broadcast.emit('move', socket.player);
+            socket.broadcast.emit('move',socket.player,data.fire);
         });
 
         socket.on('disconnect', function() {

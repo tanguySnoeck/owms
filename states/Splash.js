@@ -3,7 +3,7 @@ var Splash = function() {};
 Splash.prototype = {
 
     loadScripts: function() {
-        game.load.script('client', 'states/client.js')
+        game.load.script('client', 'states/client.js');
         //Lib
         game.load.script('style', 'lib/style.js');
         game.load.script('mixins', 'lib/mixins.js');
