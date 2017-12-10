@@ -295,7 +295,7 @@ var Play = {
         if(game.input.activePointer.isDown){
           isPickedUp = null;
         }
-      }*/
+      }
 
 
   }
