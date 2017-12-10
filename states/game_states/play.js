@@ -275,7 +275,7 @@ var Play = {
           game.physics.arcade.collide(weap.sprite, platforms, cb2, null, this);
           game.physics.arcade.overlap(player2, weap.sprite,cb1, null, this);
         }
-      }
+      }*/
 
 
   }
